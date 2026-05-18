@@ -355,7 +355,7 @@ function buildHumanCountBtns() {
   }
 }
 
-var aiNames = ["AI Rakip 1","AI Rakip 2","AI Rakip 3","AI Rakip 4","AI Rakip 5","AI Rakip 6","AI Rakip 7"];
+var aiNames = ["AI Rival 1","AI Rival 2","AI Rival 3","AI Rival 4","AI Rival 5","AI Rival 6","AI Rival 7"];
 
 function buildPlayerRows(n) {
   var c = document.getElementById("player-setup-rows");
@@ -400,9 +400,9 @@ function toggleAI(i) {
 
 var aiDifficulty = "medium";
 var DIFF_DESC = {
-  easy:   "Easy: AI az asker alır, nadiren saldırır ve çoğu zaman pasif kalır.",
-  medium: "Moderate: AI dengeli davranır, temel strateji uygular.",
-  hard:   "Hard: AI is aggressive, designates a lot of soldiers and doesn't miss out on opportunities!"
+  easy:   "Easy: AI designates less soldiers, attacks rarely and is introverted mostly.",
+  medium: "Moderate: AI behaves moderately and it pursues basic strategy",
+  hard:   "Hard: AI is aggressive, designates a lot of soldiers and doesn't miss out on any opportunities!"
 };
 function selectDifficulty(d) {
   aiDifficulty = d;
@@ -552,7 +552,7 @@ function onTerritoryClick(e) {
   var active = state.players[state.currentTurn];
 
   if (state.mode === "soldier") {
-    if (!owner || owner.id !== active.id) { notify("Yalnizca kendi topraklariniza asker ekleyebilirsiniz!"); return; }
+    if (!owner || owner.id !== active.id) { notify("You can add soldier to only your lands!"); return; }
     state.selectedTerritory = pathId;
     showTerritoryInfo(pathId, owner);
     document.getElementById("soldier-input-area").style.display = "block";
@@ -578,8 +578,8 @@ function onTerritoryClick(e) {
       });
       var srcEl = svgDoc.getElementById(pathId);
       if (srcEl) srcEl.classList.add("highlight-move-source");
-      if (!found) { notify("Bu topraklara komsu kendi topraklariniz yok!"); }
-      else { state.moveSource = pathId; notify("Mavi parlayan komsu topraga tiklayin!"); }
+      if (!found) { notify("There is no territory that is a neighbour of the country"); }
+      else { state.moveSource = pathId; notify("Click on the neighbour country that shines blue!"); }
       return;
     }
     var adj = buildAdjacency();
@@ -587,7 +587,7 @@ function onTerritoryClick(e) {
     if (pathId === state.moveSource) {
       clearMoveHighlights();
       state.moveSource = null;
-      notify("Kaynak secimi iptal edildi. Tekrar seciniz.");
+      notify("The selection of resource has been cancelled. Choose again!");
       return;
     }
     if (nbrs.indexOf(pathId) === -1) {
