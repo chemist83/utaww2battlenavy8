@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avrupa Strateji Oyunu 1939</title>
+<title>Europe 1939</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -133,6 +133,22 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
 .music-slot-btn{font-size:9px;padding:2px 6px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:#888;cursor:pointer;border-radius:2px;font-family:'Cinzel',serif;white-space:nowrap;flex-shrink:0;transition:all 0.2s}
 .music-slot-btn:hover{border-color:var(--gold);color:var(--gold)}
 .music-slot-input{display:none}
+.ship-marker{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:all;z-index:20;cursor:pointer}
+.ship-icon{font-size:10px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.9));user-select:none}
+.ship-count{font-family:'Cinzel',serif;font-size:5px;font-weight:700;color:#fff;background:rgba(0,0,80,0.85);padding:0 2px;border-radius:2px;margin-top:1px;border:1px solid rgba(100,150,255,0.6);white-space:nowrap}
+.ship-marker.selected-ship{outline:2px solid #fff;border-radius:3px}
+.coast-highlight{stroke:rgba(0,220,0,0.9)!important;stroke-width:1.6!important;filter:brightness(1.3);animation:pulse-green 0.8s infinite alternate;}
+@keyframes pulse-green{from{stroke-width:1px;stroke:rgba(0,200,0,0.5);}to{stroke-width:2px;stroke:rgba(50,255,50,1);}}
+.coast-attack-target{stroke:rgba(255,30,30,0.9)!important;stroke-width:1.6!important;filter:brightness(1.2);animation:pulse-red 1s infinite alternate;}
+#ship-modal{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:4000;display:none;align-items:center;justify-content:center}
+#ship-modal.show{display:flex}
+.ship-modal-box{background:rgba(12,12,22,0.99);border:1px solid var(--border);border-radius:6px;padding:24px;width:340px;max-width:95vw;box-shadow:0 0 40px rgba(0,0,0,0.8)}
+.ship-modal-box input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:3px;font-family:'Cinzel',serif;font-size:13px;outline:none;text-align:center;margin-bottom:8px}
+.ship-modal-box input:focus{border-color:var(--gold)}
+.ship-player-list{max-height:180px;overflow-y:auto;margin-bottom:10px}
+.ship-player-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid rgba(255,255,255,0.06);border-radius:3px;margin-bottom:4px;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.02)}
+.ship-player-item:hover{background:rgba(80,200,255,0.12);border-color:#50c8ff}
+.ship-player-item.selected-player{background:rgba(80,200,255,0.2);border-color:#50c8ff}
 </style>
 </head>
 <body>
@@ -201,6 +217,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       <button class="btn danger" id="btn-war" onclick="openWarModal()" disabled><span class="btn-icon">&#9760;</span> Savas Ilan Et / Yonet</button>
       <button class="btn" id="btn-attack" onclick="openAttackMode()" disabled style="display:none"><span class="btn-icon">&#9876;</span> Saldır</button>
       <button class="btn" id="btn-move" onclick="toggleMoveMode()" disabled style="border-color:rgba(80,200,255,0.4);color:#50c8ff"><span class="btn-icon">&#10137;</span> Birim Tasima (2 hak)</button>
+      <button class="btn" id="btn-ship" onclick="openShipModal()" disabled style="border-color:rgba(80,150,255,0.5);color:#6ab4ff"><span class="btn-icon">&#9875;</span> Gemi Ekle</button>
       <button class="btn success" id="btn-skip" onclick="skipTurn()" disabled><span class="btn-icon">&#9654;</span> Turu Gec</button>
     </div>
     <div class="panel-section" id="war-section" style="display:none">
@@ -231,6 +248,20 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
     <div class="modal-title" id="modal-title"></div>
     <div class="modal-body" id="modal-body"></div>
     <div class="modal-btns" id="modal-btns"></div>
+  </div>
+</div>
+
+<div id="ship-modal">
+  <div class="ship-modal-box">
+    <div class="modal-title" style="font-family:Cinzel,serif;font-size:14px;color:var(--gold);margin-bottom:12px;letter-spacing:2px">&#9875; GEMİ OLUŞTUR</div>
+    <div style="font-size:11px;color:#aaa;margin-bottom:8px">Gemi sayısını girin:</div>
+    <input type="number" id="ship-count-input" min="1" placeholder="Gemi sayısı..." />
+    <div style="font-size:11px;color:#aaa;margin-bottom:6px">Hangi oyuncu için?</div>
+    <div class="ship-player-list" id="ship-player-list"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn success" onclick="confirmShipModal()" style="flex:1;margin-bottom:0;justify-content:center"><span class="btn-icon">&#10003;</span> Yerleştir</button>
+      <button class="btn danger" onclick="closeShipModal()" style="flex:1;margin-bottom:0;justify-content:center">İptal</button>
+    </div>
   </div>
 </div>
 
@@ -1314,7 +1345,515 @@ function runAITurn() {
 }
 // ──────────────────────────────────────────────────────────
 
-// ── MÜZİK PLAYER ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────────
+// ── GEMİ SİSTEMİ ──────────────────────────────────────────
+
+// Denize kıyısı olan ülkelerin territory prefix'leri
+var COASTAL_COUNTRIES = ["NO","SE","DK","DE","NL","BE","GB","IE","FR","ES","PT","IT","GR","TR","RU","IS","FI","LV","LT","EE"];
+
+// Gemiler: [{id, playerId, x, y, count, movedThisTurn}]
+var ships = [];
+var shipIdCounter = 0;
+
+// Ship placement state
+var shipPlacementMode = false;
+var shipPlacementCount = 0;
+var shipPlacementPlayerId = null;
+var selectedShipId = null;
+var shipAttackMode = false;
+
+function isCoastalTerritory(pathId) {
+  var prefix = pathId.replace(/[0-9]+$/, "");
+  return COASTAL_COUNTRIES.indexOf(prefix) !== -1;
+}
+
+function openShipModal() {
+  if (!state.gameStarted) return;
+  var active = state.players[state.currentTurn];
+  // Check if active player's country has coastal territories
+  var hasCoast = active.territories.some(isCoastalTerritory);
+  if (!hasCoast) { notify("Denize kıyısı olan topraklarınız yok! Gemi oluşturamazsınız."); return; }
+
+  // Build player list - only players with coastal territories
+  var listEl = document.getElementById("ship-player-list");
+  listEl.innerHTML = "";
+  state.players.filter(function(p){ return !p.eliminated; }).forEach(function(p){
+    var coastal = p.territories.filter(isCoastalTerritory).length;
+    if (coastal === 0) return;
+    var div = document.createElement("div");
+    div.className = "ship-player-item" + (p.id === active.id ? " selected-player" : "");
+    div.dataset.pid = p.id;
+    div.innerHTML = "<div class='player-swatch' style='background:" + p.color + ";width:12px;height:12px;border-radius:2px;flex-shrink:0;border:1px solid rgba(255,255,255,0.2)'></div>" +
+      "<span style='font-family:Cinzel,serif;font-size:11px;flex:1'>" + p.flag + " " + p.name + "</span>" +
+      "<span style='font-size:9px;color:#888'>" + coastal + " kıyı bölge</span>";
+    div.onclick = function() {
+      listEl.querySelectorAll(".ship-player-item").forEach(function(d){ d.classList.remove("selected-player"); });
+      div.classList.add("selected-player");
+    };
+    listEl.appendChild(div);
+  });
+  document.getElementById("ship-count-input").value = "";
+  document.getElementById("ship-modal").classList.add("show");
+}
+
+function closeShipModal() {
+  document.getElementById("ship-modal").classList.remove("show");
+}
+
+function confirmShipModal() {
+  var n = parseInt(document.getElementById("ship-count-input").value);
+  if (!n || n < 1) { notify("Geçerli bir gemi sayısı girin!"); return; }
+  var sel = document.querySelector(".ship-player-item.selected-player");
+  if (!sel) { notify("Bir oyuncu seçin!"); return; }
+  var pid = parseInt(sel.dataset.pid);
+  closeShipModal();
+  // Enter placement mode
+  shipPlacementCount = n;
+  shipPlacementPlayerId = pid;
+  shipPlacementMode = true;
+  // Highlight coastal territories of that player
+  highlightCoastalTerritories(pid);
+  var pname = state.players.find(function(p){ return p.id === pid; });
+  notify("⚓ " + (pname ? pname.name : "") + " için kıyı bölge seçin! Yeşil parlayan yerlere tıklayın.");
+}
+
+function highlightCoastalTerritories(playerId) {
+  if (!svgDoc) return;
+  svgDoc.querySelectorAll(".region").forEach(function(p){
+    p.classList.remove("coast-highlight");
+    var owner = getTerritoryOwner(p.id);
+    if (owner && owner.id === playerId && isCoastalTerritory(p.id)) {
+      p.classList.add("coast-highlight");
+    }
+  });
+}
+
+function clearCoastHighlights() {
+  if (!svgDoc) return;
+  svgDoc.querySelectorAll(".region").forEach(function(p){
+    p.classList.remove("coast-highlight","coast-attack-target");
+  });
+}
+
+// Convert SVG path center to screen px (same as soldier markers)
+function getSVGCenter(pathEl) {
+  try {
+    var bbox = pathEl.getBBox();
+    var cx = bbox.x + bbox.width/2;
+    var cy = bbox.y + bbox.height/2;
+    return { svgX: cx * 0.1, svgY: 1742 + cy * (-0.1) };
+  } catch(e) { return null; }
+}
+
+function svgToScreen(svgX, svgY) {
+  var container = document.getElementById("map-container");
+  var W = container.clientWidth, H = container.clientHeight;
+  var svgW = 1925, svgH = 1742;
+  var sc = Math.min(W/svgW, H/svgH);
+  var ox = (W - svgW*sc)/2;
+  var oy = (H - svgH*sc)/2;
+  return {
+    x: svgX * sc + ox,
+    y: svgY * sc + oy
+  };
+}
+
+function screenToSVG(screenX, screenY) {
+  var container = document.getElementById("map-container");
+  var W = container.clientWidth, H = container.clientHeight;
+  var svgW = 1925, svgH = 1742;
+  var sc = Math.min(W/svgW, H/svgH);
+  var ox = (W - svgW*sc)/2;
+  var oy = (H - svgH*sc)/2;
+  return {
+    x: (screenX - ox) / sc,
+    y: (screenY - oy) / sc
+  };
+}
+
+function placeShipAt(pathId, player) {
+  var pathEl = svgDoc ? svgDoc.getElementById(pathId) : null;
+  if (!pathEl) return;
+  var center = getSVGCenter(pathEl);
+  if (!center) return;
+  var sid = ++shipIdCounter;
+  var ship = { id: sid, playerId: player.id, svgX: center.svgX, svgY: center.svgY, count: shipPlacementCount, movedThisTurn: false };
+  ships.push(ship);
+  renderShipMarker(ship, player);
+  addLog(player.flag + " " + player.name + ": " + pathId + " kıyısına " + shipPlacementCount + " gemi konuşlandırıldı.");
+  clearCoastHighlights();
+  shipPlacementMode = false;
+  shipPlacementCount = 0;
+  shipPlacementPlayerId = null;
+  updateMapHighlights();
+}
+
+function renderShipMarker(ship, player) {
+  if (!player) { player = state.players.find(function(p){ return p.id === ship.playerId; }); }
+  if (!player) return;
+  var markerId = "ship-" + ship.id;
+  var existing = document.getElementById(markerId);
+  if (!existing) {
+    existing = document.createElement("div");
+    existing.id = markerId;
+    existing.className = "ship-marker";
+    document.getElementById("map-wrapper").appendChild(existing);
+    existing.addEventListener("click", function(e){ e.stopPropagation(); onShipClick(ship.id); });
+    existing.addEventListener("dblclick", function(e){ e.stopPropagation(); onShipDblClick(ship.id); });
+  }
+  existing.innerHTML = "<div class='ship-icon'>⚓</div><div class='ship-count' style='color:" + player.color + ";border-color:" + player.color + "'>" + ship.count + "</div>";
+  var pos = svgToScreen(ship.svgX, ship.svgY);
+  existing.style.left = pos.x + "px";
+  existing.style.top = pos.y + "px";
+}
+
+function updateAllShipMarkers() {
+  ships.forEach(function(ship){
+    renderShipMarker(ship);
+  });
+}
+
+function removeShipMarker(shipId) {
+  var el = document.getElementById("ship-" + shipId);
+  if (el) el.remove();
+}
+
+function onShipClick(shipId) {
+  if (!state.gameStarted) return;
+  var ship = ships.find(function(s){ return s.id === shipId; });
+  if (!ship) return;
+  var active = state.players[state.currentTurn];
+  if (ship.playerId !== active.id) { notify("Bu gemi size ait değil!"); return; }
+  if (state.mode === "ship-move") {
+    if (selectedShipId === shipId) {
+      // Deselect
+      selectedShipId = null;
+      var el = document.getElementById("ship-" + shipId);
+      if (el) el.classList.remove("selected-ship");
+      notify("Gemi seçimi iptal edildi.");
+    } else {
+      // Select this ship
+      if (selectedShipId !== null) {
+        var oldEl = document.getElementById("ship-" + selectedShipId);
+        if (oldEl) oldEl.classList.remove("selected-ship");
+      }
+      if (ship.movedThisTurn) { notify("Bu gemi bu tur zaten hareket etti!"); return; }
+      selectedShipId = shipId;
+      var el2 = document.getElementById("ship-" + shipId);
+      if (el2) el2.classList.add("selected-ship");
+      notify("Gemi seçildi! Haritaya tıklayarak hareket ettirin (2cm sınırı).");
+    }
+  }
+}
+
+function onShipDblClick(shipId) {
+  if (!state.gameStarted) return;
+  var ship = ships.find(function(s){ return s.id === shipId; });
+  if (!ship) return;
+  var active = state.players[state.currentTurn];
+  if (ship.playerId !== active.id) return;
+  if (active.wars.length === 0) { notify("Saldırmak için önce savaş ilan edin!"); return; }
+  // Show attack button popup in notification area and highlight enemy coastal territories near ship
+  selectedShipId = shipId;
+  var el = document.getElementById("ship-" + shipId);
+  if (el) el.classList.add("selected-ship");
+  // Enter ship attack mode
+  state.mode = "ship-attack";
+  shipAttackMode = true;
+  highlightEnemyCoastalNearShip(ship, active);
+  notify("⚔ SALDIRI MODU: Kırmızı parlayan kıyı bölgesine tıklayın! (ESC iptal)");
+}
+
+function highlightEnemyCoastalNearShip(ship, active) {
+  if (!svgDoc) return;
+  clearCoastHighlights();
+  // Highlight ALL enemy coastal territories owned by war opponents
+  svgDoc.querySelectorAll(".region").forEach(function(p){
+    if (!isCoastalTerritory(p.id)) return;
+    var owner = getTerritoryOwner(p.id);
+    if (!owner) return;
+    if (owner.id === active.id) return;
+    if (active.wars.indexOf(owner.id) === -1) return;
+    p.classList.add("coast-attack-target");
+  });
+}
+
+function shipAttackTarget(pathId) {
+  var active = state.players[state.currentTurn];
+  var ship = ships.find(function(s){ return s.id === selectedShipId; });
+  if (!ship || !active) return;
+  var owner = getTerritoryOwner(pathId);
+  if (!owner) { cancelShipAttack(); return; }
+  if (owner.id === active.id) { notify("Kendi topraklarınıza saldıramazsınız!"); return; }
+  if (active.wars.indexOf(owner.id) === -1) { notify("Bu ülkeyle savaş halindesiniz değilsiniz!"); return; }
+
+  var defSoldiers = owner.soldiers[pathId] || 0;
+  if (ship.count > defSoldiers) {
+    // Ship wins - capture territory
+    var idx = owner.territories.indexOf(pathId);
+    if (idx > -1) owner.territories.splice(idx, 1);
+    active.territories.push(pathId);
+    delete owner.soldiers[pathId];
+    var pathEl = svgDoc.getElementById(pathId);
+    if (pathEl) pathEl.setAttribute("fill", active.color);
+    addLog(active.flag + " " + active.name + ": ⚓ gemi saldırısı! " + pathId + " fethedildi! (" + ship.count + " gemi vs " + defSoldiers + " asker)");
+    notify("⚓ " + pathId + " fethedildi! Gemi gücü: " + ship.count + " vs " + defSoldiers + " asker");
+    if (owner.territories.length === 0) {
+      owner.eliminated = true;
+      addLog(owner.flag + " " + owner.name + " elendi!");
+    }
+    var alive = state.players.filter(function(p){ return !p.eliminated; });
+    if (alive.length === 1) {
+      showModal("OYUN BİTTİ!", alive[0].flag + " " + alive[0].name + " Avrupa'nın hakimi oldu!", [{label:"Yeni Oyun",cls:"success",action:"location.reload()"}]);
+    }
+  } else {
+    // Ship loses
+    addLog(active.flag + " " + active.name + ": ⚓ gemi saldırısı başarısız! " + pathId + " savunuldu. (" + ship.count + " vs " + defSoldiers + ")");
+    notify("Gemi saldırısı başarısız! " + ship.count + " gemi vs " + defSoldiers + " asker");
+    // Remove ship
+    removeShipMarker(ship.id);
+    ships = ships.filter(function(s){ return s.id !== ship.id; });
+  }
+  cancelShipAttack();
+  renderSidePanel();
+  updateWarSection();
+}
+
+function cancelShipAttack() {
+  if (selectedShipId !== null) {
+    var el = document.getElementById("ship-" + selectedShipId);
+    if (el) el.classList.remove("selected-ship");
+  }
+  selectedShipId = null;
+  state.mode = null;
+  shipAttackMode = false;
+  clearCoastHighlights();
+  updateMapHighlights();
+}
+
+function toggleShipMoveMode() {
+  var btn = document.getElementById("btn-ship-move");
+  if (!btn) return;
+  if (state.mode === "ship-move") {
+    state.mode = null;
+    selectedShipId = null;
+    btn.classList.remove("active-mode");
+    ships.forEach(function(s){ var el = document.getElementById("ship-"+s.id); if(el) el.classList.remove("selected-ship"); });
+    notify("Gemi hareket modu iptal.");
+  } else {
+    state.mode = "ship-move";
+    selectedShipId = null;
+    btn.classList.add("active-mode");
+    notify("Gemi hareket modu: Bir gemiye tıklayın, ardından haritaya tıklayarak taşıyın (maks 2cm ekran mesafesi).");
+  }
+}
+
+// Handle map click for ship movement
+function handleShipMapClick(e) {
+  if (state.mode !== "ship-move") return;
+  if (selectedShipId === null) return;
+  var ship = ships.find(function(s){ return s.id === selectedShipId; });
+  if (!ship) return;
+  if (ship.movedThisTurn) { notify("Bu gemi bu tur zaten hareket etti!"); return; }
+
+  var container = document.getElementById("map-container");
+  var rect = container.getBoundingClientRect();
+  var clickX = e.clientX - rect.left - mapOffsetX;
+  var clickY = e.clientY - rect.top - mapOffsetY;
+  // Divide by scale to get unscaled container coords
+  clickX /= mapScale;
+  clickY /= mapScale;
+
+  // Current ship position in same coord system
+  var curPos = svgToScreen(ship.svgX, ship.svgY);
+  // Unscale curPos too (svgToScreen gives unscaled pixel, but map is scaled)
+  // Actually svgToScreen gives pixel position assuming no pan/scale applied to container
+  // We need click position relative to map-wrapper at scale=1
+  var W = container.clientWidth, H = container.clientHeight;
+  var svgW = 1925, svgH = 1742;
+  var sc = Math.min(W/svgW, H/svgH);
+  var ox = (W - svgW*sc)/2;
+  var oy = (H - svgH*sc)/2;
+
+  // Get click in SVG coords
+  var newSvgX = (e.clientX - rect.left - mapOffsetX) / mapScale;
+  var newSvgY = (e.clientY - rect.top - mapOffsetY) / mapScale;
+  // Convert from container px to SVG coords
+  var newSvgXWorld = (newSvgX - ox) / sc;
+  var newSvgYWorld = (newSvgY - oy) / sc;
+
+  // Current ship in screen px (without scale/offset)
+  var curScreenX = ship.svgX * sc + ox;
+  var curScreenY = ship.svgY * sc + oy;
+
+  // Distance in screen pixels (at scale=1)
+  var dx = newSvgX - curScreenX;
+  var dy = newSvgY - curScreenY;
+  var dist = Math.sqrt(dx*dx + dy*dy);
+
+  // 2cm: at 96dpi = 2 * 96/2.54 ≈ 75.6 pixels, but map may be zoomed.
+  // We measure in unscaled screen pixels (scale=1 container), 2cm ~= 75 px
+  var MAX_DIST = 75;
+  if (dist > MAX_DIST) {
+    notify("Çok uzak! Gemi en fazla 2cm (yaklaşık " + Math.round(MAX_DIST) + " piksel) hareket edebilir. Mesafe: " + Math.round(dist) + "px");
+    return;
+  }
+
+  // Move ship
+  ship.svgX = newSvgXWorld;
+  ship.svgY = newSvgYWorld;
+  ship.movedThisTurn = true;
+  renderShipMarker(ship);
+  var el = document.getElementById("ship-" + ship.id);
+  if (el) el.classList.remove("selected-ship");
+  selectedShipId = null;
+  state.mode = null;
+  var btn = document.getElementById("btn-ship-move");
+  if (btn) btn.classList.remove("active-mode");
+  notify("Gemi taşındı! (mesafe: " + Math.round(dist) + "px)");
+}
+
+// Reset ship move flags each turn
+var _origStartPlayerTurn = startPlayerTurn;
+startPlayerTurn = function() {
+  ships.forEach(function(s){ s.movedThisTurn = false; });
+  _origStartPlayerTurn();
+  // Enable/disable ship buttons based on active player's coastal territories
+  var active = state.players[state.currentTurn];
+  if (active && !active.isAI) {
+    var hasCoast = active.territories.some(isCoastalTerritory);
+    var shipBtn = document.getElementById("btn-ship");
+    if (shipBtn) shipBtn.disabled = !hasCoast;
+    var moveBtn = document.getElementById("btn-ship-move");
+    if (moveBtn) moveBtn.disabled = false;
+  }
+};
+
+// Patch map click handler to handle ship-related clicks
+var _origOnTerritoryClick = onTerritoryClick;
+onTerritoryClick = function(e) {
+  // If in ship placement mode
+  if (shipPlacementMode) {
+    var path = e.currentTarget;
+    var pathId = path.id;
+    var owner = getTerritoryOwner(pathId);
+    if (!owner || owner.id !== shipPlacementPlayerId) {
+      notify("Sadece seçilen oyuncunun kıyı topraklarına tıklayın!");
+      return;
+    }
+    if (!isCoastalTerritory(pathId)) {
+      notify("Bu bölge kıyıya sahip değil!");
+      return;
+    }
+    var player = state.players.find(function(p){ return p.id === shipPlacementPlayerId; });
+    placeShipAt(pathId, player);
+    return;
+  }
+  // If in ship attack mode
+  if (state.mode === "ship-attack") {
+    var path2 = e.currentTarget;
+    var pathId2 = path2.id;
+    if (!isCoastalTerritory(pathId2)) { notify("Sadece kıyı bölgelerine saldırabilirsiniz!"); return; }
+    shipAttackTarget(pathId2);
+    return;
+  }
+  _origOnTerritoryClick(e);
+};
+
+// Patch map container mousedown to handle ship movement
+document.addEventListener("DOMContentLoaded", function(){
+  var mc = document.getElementById("map-container");
+  if (mc) {
+    mc.addEventListener("click", function(e){
+      if (state.mode === "ship-move" && selectedShipId !== null) {
+        // Check if click was on a ship marker
+        if (!e.target.closest(".ship-marker")) {
+          handleShipMapClick(e);
+        }
+      }
+      if (state.mode === "ship-attack") {
+        if (!e.target.closest(".ship-marker") && !e.target.closest(".region")) {
+          cancelShipAttack();
+        }
+      }
+    });
+  }
+});
+
+// Keyboard ESC to cancel modes
+document.addEventListener("keydown", function(e){
+  if (e.key === "Escape") {
+    if (shipPlacementMode) {
+      shipPlacementMode = false;
+      clearCoastHighlights();
+      updateMapHighlights();
+      notify("Gemi yerleştirme iptal edildi.");
+    }
+    if (state.mode === "ship-attack") {
+      cancelShipAttack();
+    }
+    if (state.mode === "ship-move") {
+      toggleShipMoveMode();
+    }
+  }
+});
+
+// Patch updateSoldierMarkers to also update ships
+var _origUpdateSoldierMarkers = updateSoldierMarkers;
+updateSoldierMarkers = function() {
+  _origUpdateSoldierMarkers();
+  updateAllShipMarkers();
+};
+
+// Add ship move button to actions after game starts
+var _origRenderSidePanel = renderSidePanel;
+renderSidePanel = function() {
+  _origRenderSidePanel();
+  // Add ship-move button if not already there
+  if (!document.getElementById("btn-ship-move")) {
+    var skipBtn = document.getElementById("btn-skip");
+    if (skipBtn && skipBtn.parentNode) {
+      var moveShipBtn = document.createElement("button");
+      moveShipBtn.className = "btn";
+      moveShipBtn.id = "btn-ship-move";
+      moveShipBtn.style.cssText = "border-color:rgba(80,150,255,0.5);color:#6ab4ff";
+      moveShipBtn.innerHTML = "<span class='btn-icon'>&#10139;</span> Gemi Taşı";
+      moveShipBtn.onclick = toggleShipMoveMode;
+      moveShipBtn.disabled = false;
+      skipBtn.parentNode.insertBefore(moveShipBtn, skipBtn);
+    }
+  } else {
+    // If button exists but was disabled by disableActions, re-enable for current (non-AI) player
+    var active2 = state.gameStarted ? state.players[state.currentTurn] : null;
+    if (active2 && !active2.isAI) {
+      var moveBtn2 = document.getElementById("btn-ship-move");
+      if (moveBtn2) moveBtn2.disabled = false;
+    }
+  }
+};
+
+// Patch disableActions to also reset ship modes
+var _origDisableActions = disableActions;
+disableActions = function() {
+  _origDisableActions();
+  if (shipPlacementMode) {
+    shipPlacementMode = false;
+    clearCoastHighlights();
+  }
+  if (state.mode === "ship-attack") {
+    cancelShipAttack();
+  }
+  selectedShipId = null;
+  var btn = document.getElementById("btn-ship-move");
+  if (btn) { btn.disabled = true; btn.classList.remove("active-mode"); }
+  var shipBtn = document.getElementById("btn-ship");
+  if (shipBtn) shipBtn.disabled = true;
+};
+
+
+
+// ──────────────────────────────────────────────────────────
+
 var musicTracks = [null, null, null, null, null];
 var musicNames  = ["", "", "", "", ""];
 var musicCurrent = 0;
@@ -1451,4 +1990,4 @@ musicBuildSlots();
 // ──────────────────────────────────────────────────────────
 </script>
 </body>
-</html>
+        </html>
