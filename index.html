@@ -242,11 +242,11 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       <button class="btn success" id="btn-skip" onclick="skipTurn()" disabled><span class="btn-icon">&#9654;</span> Turu Gec</button>
     </div>
     <div class="panel-section" id="war-section" style="display:none">
-      <div class="panel-title">&#9672; Savas Durumu</div>
+      <div class="panel-title">&#9672; War Status</div>
       <div id="war-status-list"></div>
     </div>
     <div class="panel-section" id="diplo-section" style="display:none">
-      <div class="panel-title">&#9672; Diplomasi Tablosu</div>
+      <div class="panel-title">&#9672; Diplomacy Table </div>
       <div id="diplo-table-wrap"></div>
       <div style="display:flex;gap:6px;margin-top:6px;font-size:8px;font-family:Cinzel,serif;letter-spacing:0.5px">
         <span style="color:#e74c3c">&#9632;</span><span style="color:#888">SAVAŞ</span>&nbsp;
@@ -266,13 +266,13 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       <ul id="log-list"></ul>
     </div>
     <div class="panel-section" id="music-panel">
-      <div class="panel-title">&#9835; Muzik</div>
+      <div class="panel-title">&#9835; Music</div>
       <div class="music-controls">
         <button class="music-play-btn" id="music-play-btn" onclick="musicToggle()">&#9654;</button>
         <input type="range" class="music-vol" id="music-vol" min="0" max="1" step="0.02" value="0.5" oninput="musicSetVolume(this.value)" />
         <button class="music-play-btn" onclick="musicNext()" title="Sonraki" style="font-size:11px;width:24px;height:24px">&#9654;&#9654;</button>
       </div>
-      <div class="music-track-info" id="music-track-info">— Parca yuklenmedi —</div>
+      <div class="music-track-info" id="music-track-info">— Audio couldn't be loaded —</div>
       <div id="music-slots"></div>
     </div>
   </div>
@@ -520,9 +520,9 @@ function toggleAI(i) {
 
 var aiDifficulty = "medium";
 var DIFF_DESC = {
-  easy:   "Kolay: AI az asker alır, nadiren saldırır ve çoğu zaman pasif kalır.",
-  medium: "Orta: AI dengeli davranır, temel strateji uygular.",
-  hard:   "Zor: AI agresif, sınırlara asker dağıtır ve tüm fırsatları değerlendirir!"
+  easy:   "Easy: AI buys less soldiers, fights rarely and most of them stay stationary.",
+  medium: "Moderate: AI behaves moderately, pursues basic strategy.",
+  hard:   "Hard/Difficult: AI is aggressive, designates a lot of soldiers to its lands and doesn't miss out on any oportunities!"
 };
 function selectDifficulty(d) {
   aiDifficulty = d;
