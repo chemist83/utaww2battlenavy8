@@ -1059,27 +1059,27 @@ function startPlayerTurn() {
           renderSidePanel();
         }, 250);
       } else {
-        var alliDelay = (pendingOffers.length > 0) ? 900 : 500;
-        var capturedAlliOffer = alliOffer;
-        var capturedAlliOfferer = alliOfferer;
-        setTimeout(function(){
-          showModal(
-            "🤝 İTTİFAK TEKLİFİ",
-            "<div style=\"text-align:center;padding:8px 0\">" +
-              "<div style=\"font-size:28px;margin-bottom:8px\">🤝</div>" +
-              "<div style=\"font-family:Cinzel,serif;font-size:13px;color:#ffd700;margin-bottom:10px\">" + capturedAlliOfferer.flag + " " + capturedAlliOfferer.name + "</div>" +
-              "<div style=\"font-size:13px;color:var(--text);line-height:1.8\">" +
-                capturedAlliOfferer.name + " size ittifak teklif ediyor.<br>" +
-                "<span style=\"font-size:11px;color:#aaa\">Müttefikler birbirine saldıramaz ve birbirlerinin topraklarından asker geçirebilir.</span>" +
-              "</div>" +
-            "</div>",
-            [
-              {label:"🤝 Kabul Et", cls:"success", action:"acceptAlliance("+capturedAlliOffer.from+","+capturedAlliOffer.to+")"},
-              {label:"✗ Reddet",   cls:"danger",  action:"rejectAlliance("+capturedAlliOffer.from+","+capturedAlliOffer.to+")"}
-            ]
-          );
-        }, alliDelay);
-      }
+  var alliDelay = (pendingOffers.length > 0) ? 900 : 500;
+  var capturedAlliOffer = alliOffer;
+  var capturedAlliOfferer = alliOfferer;
+  setTimeout(function(){
+    showModal(
+      "🤝 İTTİFAK TEKLİFİ",
+      "<div style=\"text-align:center;padding:8px 0\">" +
+        "<div style=\"font-size:28px;margin-bottom:8px\">🤝</div>" +
+        "<div style=\"font-family:Cinzel,serif;font-size:13px;color:#ffd700;margin-bottom:10px\"><img src='https://flagcdn.com/w40/" + capturedAlliOfferer.flag.toLowerCase() + ".png' style='height:16px;vertical-align:middle;margin-right:5px;border-radius:2px'>" + capturedAlliOfferer.flag + " " + capturedAlliOfferer.name + "</div>" +
+        "<div style=\"font-size:13px;color:var(--text);line-height:1.8\">" +
+          capturedAlliOfferer.name + " size ittifak teklif ediyor.<br>" +
+          "<span style=\"font-size:11px;color:#aaa\">Müttefikler birbirine saldıramaz ve birbirlerinden asker geçirebilir.</span>" +
+        "</div>" +
+      "</div>",
+      [
+        {label:"🤝 Kabul Et", cls:"success", action:"acceptAlliance("+capturedAlliOffer.from+","+capturedAlliOffer.to+")"},
+        {label:"✗ Reddet",   cls:"danger",  action:"rejectAlliance("+capturedAlliOffer.from+","+capturedAlliOffer.to+")"}
+      ]
+    );
+  }, alliDelay);
+  }
     }
   }
 
