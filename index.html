@@ -268,12 +268,12 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
     </div>
     <div class="panel-section">
       <div class="panel-title">&#9672; Actions</div>
-      <button class="btn" id="btn-soldiers" onclick="toggleSoldierMode()" disabled><span class="btn-icon">&#9876;</span> Asker Ekle (20c/asker)</button>
-      <button class="btn danger" id="btn-war" onclick="openWarModal()" disabled><span class="btn-icon">&#9760;</span> Savas Ilan Et / Yonet</button>
-      <button class="btn" id="btn-attack" onclick="openAttackMode()" disabled style="display:none"><span class="btn-icon">&#9876;</span> Saldır</button>
-      <button class="btn" id="btn-move" onclick="toggleMoveMode()" disabled style="border-color:rgba(80,200,255,0.4);color:#50c8ff"><span class="btn-icon">&#10137;</span> Birim Tasima (2 hak)</button>
-      <button class="btn" id="btn-ship" onclick="openShipModal()" disabled style="border-color:rgba(80,150,255,0.5);color:#6ab4ff"><span class="btn-icon">&#9875;</span> Gemi Ekle</button>
-      <button class="btn success" id="btn-skip" onclick="skipTurn()" disabled><span class="btn-icon">&#9654;</span> Turu Gec</button>
+      <button class="btn" id="btn-soldiers" onclick="toggleSoldierMode()" disabled><span class="btn-icon">&#9876;</span> Add Soldier (20 coins per soldier)</button>
+      <button class="btn danger" id="btn-war" onclick="openWarModal()" disabled><span class="btn-icon">&#9760;</span> Diplomacy</button>
+      <button class="btn" id="btn-attack" onclick="openAttackMode()" disabled style="display:none"><span class="btn-icon">&#9876;</span> Attack</button>
+      <button class="btn" id="btn-move" onclick="toggleMoveMode()" disabled style="border-color:rgba(80,200,255,0.4);color:#50c8ff"><span class="btn-icon">&#10137;</span> Move Unit(2 rights)</button>
+      <button class="btn" id="btn-ship" onclick="openShipModal()" disabled style="border-color:rgba(80,150,255,0.5);color:#6ab4ff"><span class="btn-icon">&#9875;</span> Add ship</button>
+      <button class="btn success" id="btn-skip" onclick="skipTurn()" disabled><span class="btn-icon">&#9654;</span> Skip your turn</button>
     </div>
     <div class="panel-section" id="war-section" style="display:none">
       <div class="panel-title">&#9672; War Status</div>
@@ -355,7 +355,7 @@ function switchAuthTab(tab) {
   document.querySelectorAll('.auth-tab').forEach(function(b, i){
     b.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='register'));
   });
-  document.getElementById('auth-submit-btn').textContent = tab === 'login' ? 'GİRİŞ YAP' : 'KAYIT OL';
+  document.getElementById('auth-submit-btn').textContent = tab === 'login' ? 'LOG IN' : 'REGISTER';
   document.getElementById('auth-err').textContent = '';
 }
 
@@ -363,11 +363,11 @@ function authSubmit() {
   var username = document.getElementById('auth-username').value.trim();
   var password = document.getElementById('auth-password').value;
   var errEl = document.getElementById('auth-err');
-  if (!username || !password) { errEl.textContent = 'Kullanıcı adı ve şifre gerekli!'; return; }
+  if (!username || !password) { errEl.textContent = 'Username and passsord are mandatory!'; return; }
   var accounts = authAccounts();
   if (_authTab === 'register') {
     if (accounts.find(function(a){ return a.username.toLowerCase() === username.toLowerCase(); })) {
-      errEl.textContent = 'Bu kullanıcı adı zaten alınmış!'; return;
+      errEl.textContent = 'This username is already registered!'; return;
     }
     var newAcc = { id: Date.now().toString(36) + Math.random().toString(36).slice(2), username: username, password: password, coins: 0, avatar: '', wins: 0, losses: 0 };
     accounts.push(newAcc);
@@ -378,7 +378,7 @@ function authSubmit() {
     updateProfileBtn();
   } else {
     var acc = accounts.find(function(a){ return a.username.toLowerCase() === username.toLowerCase() && a.password === password; });
-    if (!acc) { errEl.textContent = 'Kullanıcı adı veya şifre hatalı!'; return; }
+    if (!acc) { errEl.textContent = 'Invalid username or password'; return; }
     authSetCurrent(acc.id);
     errEl.textContent = '';
     document.getElementById('auth-screen').classList.add('hidden');
@@ -434,8 +434,8 @@ function openProfileModal() {
       "</div>" +
     "</div>",
     [
-      {label:"&#10003; Kaydet", cls:"success", action:"saveProfile()"},
-      {label:"&#8594; Çıkış Yap", cls:"danger", action:"authLogout()"}
+      {label:"&#10003; SAVE", cls:"success", action:"saveProfile()"},
+      {label:"&#8594; SIGN OUT", cls:"danger", action:"authLogout()"}
     ]
   );
 }
