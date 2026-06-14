@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avrupa Strateji Oyunu 1939</title>
+<title>European War Strategy 1939</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -196,23 +196,23 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
 <div id="auth-screen" class="hidden">
   <div class="auth-box">
     <h2>&#9876; AVRUPA STRATEJİ</h2>
-    <div class="auth-sub">1939 &middot; Hesabınıza giriş yapın</div>
+    <div class="auth-sub">1939 &middot; Sign in to your account</div>
     <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchAuthTab('login')">GİRİŞ</button>
-      <button class="auth-tab" onclick="switchAuthTab('register')">KAYIT OL</button>
+      <button class="auth-tab active" onclick="switchAuthTab('login')">LOG IN</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">REGISTER</button>
     </div>
-    <input class="auth-field" id="auth-username" type="text" placeholder="Kullanıcı adı" maxlength="20" onkeydown="if(event.key==='Enter')authSubmit()">
-    <input class="auth-field" id="auth-password" type="password" placeholder="Şifre" maxlength="30" onkeydown="if(event.key==='Enter')authSubmit()">
+    <input class="auth-field" id="auth-username" type="text" placeholder="Username" maxlength="20" onkeydown="if(event.key==='Enter')authSubmit()">
+    <input class="auth-field" id="auth-password" type="password" placeholder="Password" maxlength="30" onkeydown="if(event.key==='Enter')authSubmit()">
     <div class="auth-err" id="auth-err"></div>
-    <button class="auth-btn" id="auth-submit-btn" onclick="authSubmit()">GİRİŞ YAP</button>
+    <button class="auth-btn" id="auth-submit-btn" onclick="authSubmit()">LOG IN</button>
   </div>
 </div>
 
 <div id="setup-screen">
   <div class="setup-box">
     <h2>AVRUPA STRATEJİ</h2>
-    <div class="subtitle">1939 &middot; Savaş öncesi Avrupa</div>
-    <label class="setup-label">Toplam Ülke Sayısı</label>
+    <div class="subtitle">1939 &middot; Europe Before War</div>
+    <label class="setup-label">The Total Number of Countries</label>
     <div class="player-count-btns" id="cnt-btns">
       <button class="cnt-btn" onclick="selectCount(2)">2</button>
       <button class="cnt-btn" onclick="selectCount(3)">3</button>
@@ -222,13 +222,13 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       <button class="cnt-btn" onclick="selectCount(7)">7</button>
       <button class="cnt-btn" onclick="selectCount(8)">8</button>
     </div>
-    <label class="setup-label">İnsan Oyuncu Sayısı <span id="hcnt-info" style="color:#50c8ff;font-size:9px;font-family:sans-serif;letter-spacing:0;font-weight:400"></span></label>
+    <label class="setup-label">The Number of Human Players <span id="hcnt-info" style="color:#50c8ff;font-size:9px;font-family:sans-serif;letter-spacing:0;font-weight:400"></span></label>
     <div class="player-count-btns" id="hcnt-btns"></div>
-    <label class="setup-label">AI Zorluk Derecesi</label>
+    <label class="setup-label">AI Difficulty</label>
     <div class="diff-btns">
-      <button class="diff-btn" data-diff="easy" onclick="selectDifficulty('easy')">KOLAY</button>
-      <button class="diff-btn selected" data-diff="medium" onclick="selectDifficulty('medium')">ORTA</button>
-      <button class="diff-btn" data-diff="hard" onclick="selectDifficulty('hard')">ZOR</button>
+      <button class="diff-btn" data-diff="easy" onclick="selectDifficulty('easy')">Easy</button>
+      <button class="diff-btn selected" data-diff="medium" onclick="selectDifficulty('medium')">Medium</button>
+      <button class="diff-btn" data-diff="hard" onclick="selectDifficulty('hard')">Hard</button>
     </div>
     <div class="diff-desc" id="diff-desc">Orta: AI dengeli davranır, temel strateji uygular.</div>
     <label class="setup-label">PLAYERS</label>
@@ -240,7 +240,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
 
 <div id="header">
   <h1>&#9876; EUROPEAN STRATEGY</h1>
-  <div id="turn-info">TUR <span id="turn-num">1</span> &nbsp;&middot;&nbsp; SIRA: <span id="active-player-name">&#8212;</span></div>
+  <div id="turn-info">TUR <span id="turn-num">1</span> &nbsp;&middot;&nbsp; TURN: <span id="active-player-name">&#8212;</span></div>
   <button id="profile-btn" onclick="openProfileModal()">&#128100; GİRİŞ</button>
 </div>
 
@@ -300,7 +300,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       <ul id="log-list"></ul>
     </div>
     <div class="panel-section" id="music-panel">
-      <div class="panel-title">&#9835; Muzik</div>
+      <div class="panel-title">&#9835; Music</div>
       <div class="music-controls">
         <button class="music-play-btn" id="music-play-btn" onclick="musicToggle()">&#9654;</button>
         <input type="range" class="music-vol" id="music-vol" min="0" max="1" step="0.02" value="0.5" oninput="musicSetVolume(this.value)" />
