@@ -231,15 +231,15 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       <button class="diff-btn" data-diff="hard" onclick="selectDifficulty('hard')">ZOR</button>
     </div>
     <div class="diff-desc" id="diff-desc">Orta: AI dengeli davranır, temel strateji uygular.</div>
-    <label class="setup-label">Oyuncular</label>
+    <label class="setup-label">PLAYERS</label>
     <div id="player-setup-rows"></div>
-    <button id="start-game-btn" onclick="startGame()">&#9876; SAVASI BASLAT</button>
+    <button id="start-game-btn" onclick="startGame()">&#9876; START THE GAME</button>
     <div id="setup-error"></div>
   </div>
 </div>
 
 <div id="header">
-  <h1>&#9876; AVRUPA STRATEJİ</h1>
+  <h1>&#9876; EUROPEAN STRATEGY</h1>
   <div id="turn-info">TUR <span id="turn-num">1</span> &nbsp;&middot;&nbsp; SIRA: <span id="active-player-name">&#8212;</span></div>
   <button id="profile-btn" onclick="openProfileModal()">&#128100; GİRİŞ</button>
 </div>
@@ -255,11 +255,11 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
   </div>
   <div id="side-panel">
     <div class="panel-section">
-      <div class="panel-title">&#9672; Oyuncular</div>
+      <div class="panel-title">&#9672; PLAYERS</div>
       <div id="players-list"></div>
     </div>
     <div class="panel-section" id="territory-section" style="display:none">
-      <div class="panel-title">&#9672; Secili Toprak</div>
+      <div class="panel-title">&#9672; Selected Territory</div>
       <div id="selected-territory-info"></div>
       <div id="soldier-input-area">
         <input type="number" id="soldier-count-input" min="1" placeholder="Asker sayisi..." />
@@ -267,7 +267,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       </div>
     </div>
     <div class="panel-section">
-      <div class="panel-title">&#9672; Aksiyonlar</div>
+      <div class="panel-title">&#9672; Actions</div>
       <button class="btn" id="btn-soldiers" onclick="toggleSoldierMode()" disabled><span class="btn-icon">&#9876;</span> Asker Ekle (20c/asker)</button>
       <button class="btn danger" id="btn-war" onclick="openWarModal()" disabled><span class="btn-icon">&#9760;</span> Savas Ilan Et / Yonet</button>
       <button class="btn" id="btn-attack" onclick="openAttackMode()" disabled style="display:none"><span class="btn-icon">&#9876;</span> Saldır</button>
@@ -276,16 +276,16 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       <button class="btn success" id="btn-skip" onclick="skipTurn()" disabled><span class="btn-icon">&#9654;</span> Turu Gec</button>
     </div>
     <div class="panel-section" id="war-section" style="display:none">
-      <div class="panel-title">&#9672; Savas Durumu</div>
+      <div class="panel-title">&#9672; War Status</div>
       <div id="war-status-list"></div>
     </div>
     <div class="panel-section" id="diplo-section" style="display:none">
-      <div class="panel-title">&#9672; Diplomasi Tablosu</div>
+      <div class="panel-title">&#9672; Diplomacy Table</div>
       <div id="diplo-table-wrap"></div>
       <div style="display:flex;gap:6px;margin-top:6px;font-size:8px;font-family:Cinzel,serif;letter-spacing:0.5px">
-        <span style="color:#e74c3c">&#9632;</span><span style="color:#888">SAVAŞ</span>&nbsp;
-        <span style="color:#ffd700">&#9632;</span><span style="color:#888">MÜTTEFİK</span>&nbsp;
-        <span style="color:#2ecc71">&#9632;</span><span style="color:#888">BARIŞ</span>
+        <span style="color:#e74c3c">&#9632;</span><span style="color:#888">ENEMY</span>&nbsp;
+        <span style="color:#ffd700">&#9632;</span><span style="color:#888">ALLY</span>&nbsp;
+        <span style="color:#2ecc71">&#9632;</span><span style="color:#888">PEACE</span>
       </div>
     </div>
     <div class="panel-section" id="flag-settings-section" style="display:none">
@@ -296,7 +296,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       </div>
     </div>
     <div class="panel-section">
-      <div class="panel-title">&#9672; Olay Gunlugu</div>
+      <div class="panel-title">&#9672; Action Diary</div>
       <ul id="log-list"></ul>
     </div>
     <div class="panel-section" id="music-panel">
@@ -325,9 +325,9 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
 <div id="ship-modal">
   <div class="ship-modal-box">
     <div class="modal-title" style="font-family:Cinzel,serif;font-size:14px;color:var(--gold);margin-bottom:12px;letter-spacing:2px">&#9875; GEMİ OLUŞTUR</div>
-    <div style="font-size:11px;color:#aaa;margin-bottom:8px">Gemi sayısını girin:</div>
+    <div style="font-size:11px;color:#aaa;margin-bottom:8px">Enter a number to add ship:</div>
     <input type="number" id="ship-count-input" min="1" placeholder="Gemi sayısı..." />
-    <div style="font-size:11px;color:#aaa;margin-bottom:6px">Hangi oyuncu için?</div>
+    <div style="font-size:11px;color:#aaa;margin-bottom:6px">For which player?</div>
     <div class="ship-player-list" id="ship-player-list"></div>
     <div style="display:flex;gap:8px">
       <button class="btn success" onclick="confirmShipModal()" style="flex:1;margin-bottom:0;justify-content:center"><span class="btn-icon">&#10003;</span> Yerleştir</button>
