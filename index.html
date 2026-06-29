@@ -195,7 +195,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
 
 <div id="auth-screen" class="hidden">
   <div class="auth-box">
-    <h2>&#9876; AVRUPA STRATEJİ</h2>
+    <h2>&#9876; EUROPEAN STRATEGY</h2>
     <div class="auth-sub">1939 &middot; Sign in to your account</div>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchAuthTab('login')">LOG IN</button>
@@ -210,7 +210,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
 
 <div id="setup-screen">
   <div class="setup-box">
-    <h2>AVRUPA STRATEJİ</h2>
+    <h2>EUROPEAN STRATEGY</h2>
     <div class="subtitle">1939 &middot; Europe Before War</div>
     <label class="setup-label">The Total Number of Countries</label>
     <div class="player-count-btns" id="cnt-btns">
@@ -395,7 +395,7 @@ function updateProfileBtn() {
       "<span>" + user.username + "</span>" +
       "<span style='color:var(--gold);font-weight:700'>" + (user.coins || 0) + "c</span>";
   } else {
-    btn.innerHTML = '&#128100; GİRİŞ';
+    btn.innerHTML = '&#128100; ENTRY';
   }
 }
 
@@ -416,7 +416,7 @@ function openProfileModal() {
   var user = authCurrentUser();
   if (!user) { document.getElementById('auth-screen').classList.remove('hidden'); return; }
   showModal(
-    "&#128100; PROFİL",
+    "&#128100; PROFILE",
     "<div style='text-align:center;padding:4px 0'>" +
       (user.avatar ? "<img src='" + user.avatar + "' class='profile-modal-avatar' onerror=\"this.style.display='none'\">" : "<div style='font-size:48px;margin-bottom:12px'>&#128100;</div>") +
       "<div style='font-size:11px;color:#aaa;margin-bottom:16px'>" +
@@ -425,11 +425,11 @@ function openProfileModal() {
         "Galibiyet: <span style='color:#2ecc71'>" + (user.wins||0) + "</span> &nbsp; Mağlubiyet: <span style='color:#e74c3c'>" + (user.losses||0) + "</span>" +
       "</div>" +
       "<div style='text-align:left;margin-bottom:10px'>" +
-        "<label style='font-family:Cinzel,serif;font-size:9px;color:var(--gold);letter-spacing:1px;display:block;margin-bottom:4px'>KULLANICI ADI</label>" +
+        "<label style='font-family:Cinzel,serif;font-size:9px;color:var(--gold);letter-spacing:1px;display:block;margin-bottom:4px'>USERNAME</label>" +
         "<input id='prof-username' class='auth-field' type='text' value='" + user.username.replace(/'/g,"&#39;") + "' maxlength='20' style='margin-bottom:0'>" +
       "</div>" +
       "<div style='text-align:left'>" +
-        "<label style='font-family:Cinzel,serif;font-size:9px;color:var(--gold);letter-spacing:1px;display:block;margin-bottom:4px'>FOTOĞRAF URL</label>" +
+        "<label style='font-family:Cinzel,serif;font-size:9px;color:var(--gold);letter-spacing:1px;display:block;margin-bottom:4px'>PHOTOGRAPH URL</label>" +
         "<input id='prof-avatar' class='auth-field' type='text' placeholder='https://...' value='" + (user.avatar||'').replace(/'/g,"&#39;") + "' style='margin-bottom:0'>" +
       "</div>" +
     "</div>",
@@ -444,18 +444,18 @@ function saveProfile() {
   var newName = document.getElementById('prof-username').value.trim();
   var newAvatar = document.getElementById('prof-avatar').value.trim();
   var user = authCurrentUser();
-  if (!user || !newName) { notify('Kullanıcı adı boş olamaz!'); return; }
+  if (!user || !newName) { notify('YOUR USERNAME CAN'T BE EMPTY!'); return; }
   var accounts = authAccounts();
   var idx = accounts.findIndex(function(a){ return a.id === user.id; });
   if (idx === -1) return;
   var conflict = accounts.find(function(a, i){ return i !== idx && a.username.toLowerCase() === newName.toLowerCase(); });
-  if (conflict) { notify('Bu kullanıcı adı zaten alınmış!'); return; }
+  if (conflict) { notify('This username has already been used'); return; }
   accounts[idx].username = newName;
   accounts[idx].avatar = newAvatar;
   authSaveAccounts(accounts);
   closeModal();
   updateProfileBtn();
-  notify('Profil güncellendi!');
+  notify('PROFILE CHANGED!');
 }
 
 function authLogout() {
@@ -472,10 +472,10 @@ function checkGameCoinReward(playerName, isWinner) {
   if (playerName.toLowerCase() === user.username.toLowerCase()) {
     if (isWinner) {
       authUpdateCoins(30, true);
-      notify('Tebrikler! +30 coin kazandın! Toplam: ' + (authCurrentUser().coins) + 'c');
+      notify('Congratulations! you gained +30 coin! Total: ' + (authCurrentUser().coins) + 'c');
     } else {
       authUpdateCoins(-10, false);
-      notify('Elindi. -10 coin. Toplam: ' + (authCurrentUser().coins) + 'c');
+      notify('Elindi. -10 coin. Total: ' + (authCurrentUser().coins) + 'c');
     }
   }
 }
