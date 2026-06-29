@@ -1197,7 +1197,7 @@ function startPlayerTurn() {
       } else {
         setTimeout(function(){
           showModal(
-            "☮ BARIŞ TEKLİFİ",
+            "☮ PEACE OFFER",
             "<div style=\"text-align:center;padding:8px 0\">" +
               "<div style=\"font-size:22px;margin-bottom:8px\">🕊</div>" +
               "<div style=\"font-family:Cinzel,serif;font-size:13px;color:var(--gold);margin-bottom:10px\">" + offerer.flag + " " + offerer.name + "</div>" +
@@ -1244,12 +1244,12 @@ function startPlayerTurn() {
         var capturedAlliOfferer = alliOfferer;
         setTimeout(function(){
           showModal(
-            "🤝 İTTİFAK TEKLİFİ",
+            "🤝 ALLIANCE OFFER",
             "<div style=\"text-align:center;padding:8px 0\">" +
               "<div style=\"font-size:28px;margin-bottom:8px\">🤝</div>" +
               "<div style=\"font-family:Cinzel,serif;font-size:13px;color:#ffd700;margin-bottom:10px\"><img src='https://raw.githubusercontent.com/chemist83/utaww2battlenavy8/refs/heads/main/military-helmet.png" + (capturedAlliOfferer.flagImg || '') + "' style='height:16px;vertical-align:middle;margin-right:5px'>" + capturedAlliOfferer.flag + " " + capturedAlliOfferer.name + "</div>" +              "<div style=\"font-size:13px;color:var(--text);line-height:1.8\">" +
                 capturedAlliOfferer.name + " wants to form an alliance.<br>" +
-                "<span style=\"font-size:11px;color:#aaa\">Müttefikler birbirine saldıramaz ve birbirlerinin topraklarından asker geçirebilir.</span>" +
+                "<span style=\"font-size:11px;color:#aaa\">Allies can't attack each other and they can move their soldiers through each other's lands .</span>" +
               "</div>" +
             "</div>",
             [
@@ -1290,7 +1290,7 @@ function startPlayerTurn() {
         var capturedCfFrom = cfFromP;
         setTimeout(function(){
           showModal(
-            "🕊 ATEŞKES TEKLİFİ",
+            "🕊 CEASEFIRE OFFER",
             "<div style=\"text-align:center;padding:8px 0\">" +
               "<div style=\"font-size:26px;margin-bottom:8px\">🕊</div>" +
               "<div style=\"font-family:Cinzel,serif;font-size:12px;color:#ffd700;margin-bottom:10px\">" +
@@ -1302,12 +1302,12 @@ function startPlayerTurn() {
               "</div>" +
               "<div style=\"font-size:12px;color:var(--text);line-height:1.6\">" +
                 capturedCfFrom.name + " size ateşkes teklif ediyor.<br>" +
-                "<span style=\"font-size:10px;color:#888\">Kabul ederseniz " + capturedCfOffer.duration + " tur boyunca birbirinize saldıramazsınız.</span>" +
+                "<span style=\"font-size:10px;color:#888\">If you accept it, you cannot attack each other for " + capturedCfOffer.duration + " turns.</span>" +
               "</div>" +
             "</div>",
             [
-              {label:"✅ Kabul Et", cls:"success", action:"acceptCeasefire("+capturedCfOffer.id+")"},
-              {label:"✗ Reddet",   cls:"danger",  action:"rejectCeasefire("+capturedCfOffer.id+")"}
+              {label:"✅ Accept", cls:"success", action:"acceptCeasefire("+capturedCfOffer.id+")"},
+              {label:"✗ Decline",   cls:"danger",  action:"rejectCeasefire("+capturedCfOffer.id+")"}
             ]
           );
         }, cfDelay);
