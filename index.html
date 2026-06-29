@@ -306,7 +306,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
         <input type="range" class="music-vol" id="music-vol" min="0" max="1" step="0.02" value="0.5" oninput="musicSetVolume(this.value)" />
         <button class="music-play-btn" onclick="musicNext()" title="Sonraki" style="font-size:11px;width:24px;height:24px">&#9654;&#9654;</button>
       </div>
-      <div class="music-track-info" id="music-track-info">— Parca yuklenmedi —</div>
+      <div class="music-track-info" id="music-track-info">— The audio couldn't be uploaded —</div>
       <div id="music-slots"></div>
     </div>
   </div>
@@ -367,7 +367,7 @@ function authSubmit() {
   var accounts = authAccounts();
   if (_authTab === 'register') {
     if (accounts.find(function(a){ return a.username.toLowerCase() === username.toLowerCase(); })) {
-      errEl.textContent = 'This username is already registered!'; return;
+      errEl.textContent = 'This username has already been registered!'; return;
     }
     var newAcc = { id: Date.now().toString(36) + Math.random().toString(36).slice(2), username: username, password: password, coins: 0, avatar: '', wins: 0, losses: 0 };
     accounts.push(newAcc);
@@ -711,7 +711,7 @@ var svgDoc = null;
 var mapScale = 1, mapOffsetX = 0, mapOffsetY = 0;
 var isPanning = false, panLastX = 0, panLastY = 0;
 
-var defaultNames = ["Oyuncu 1","Oyuncu 2","Oyuncu 3","Oyuncu 4","Oyuncu 5","Oyuncu 6","Oyuncu 7","Oyuncu 8"];
+var defaultNames = ["Player 1","Player 2","Player 3","Player 4","Player 5","Player 6","Player 7","Player 8"];
 var defaultCountries = ["Germany","France","Great Britain","USSR","Turkiye","Italy","Spain","Poland"];
 
 function selectCount(n) {
@@ -943,7 +943,7 @@ function onTerritoryClick(e) {
   var active = state.players[state.currentTurn];
 
   if (state.mode === "soldier") {
-    if (!owner || owner.id !== active.id) { notify("Yalnizca kendi topraklariniza asker ekleyebilirsiniz!"); return; }
+    if (!owner || owner.id !== active.id) { notify("You can add soldier on only your lands!"); return; }
     state.selectedTerritory = pathId;
     showTerritoryInfo(pathId, owner);
     document.getElementById("soldier-input-area").style.display = "block";
@@ -955,7 +955,7 @@ function onTerritoryClick(e) {
   if (state.mode === "move") {
     var isOwnTerritory = owner && owner.id === active.id;
     var isAllyTerritory = owner && areAllied(active.id, owner.id);
-    if (!isOwnTerritory && !isAllyTerritory) { notify("Yalnizca kendi veya müttefik topraklarına taşıyabilirsiniz!"); return; }
+    if (!isOwnTerritory && !isAllyTerritory) { notify("You are able to move soldier to only your ally's lands or your own lands "); return; }
     if (!state.moveSource) {
       if (!isOwnTerritory) { notify("Kaynак olarak yalnizca kendi topraklarinizi seçebilirsiniz!"); return; }
       if (!active.soldiers[pathId] || active.soldiers[pathId] < 1) { notify("Bu toprakta asker yok!"); return; }
@@ -973,7 +973,7 @@ function onTerritoryClick(e) {
       var srcEl = svgDoc.getElementById(pathId);
       if (srcEl) srcEl.classList.add("highlight-move-source");
       if (!found) { notify("Bu topraklara komsu kendi veya müttefik topraklarınız yok!"); }
-      else { state.moveSource = pathId; notify("Mavi parlayan komsu topraga tiklayin! (Müttefik topraklara da taşıyabilirsiniz)"); }
+      else { state.moveSource = pathId; notify("Choose one of the adjacent lands that are blue! (you can move it to your ally's lands )"); }
       return;
     }
     var adj = buildAdjacency();
@@ -1089,7 +1089,7 @@ function onTerritoryHover(e) {
   var owner = getTerritoryOwner(path.id);
   var tt = document.getElementById("tooltip");
   var countryInfo = owner ? COUNTRIES[owner.country] : null;
-  var countryName = countryInfo ? countryInfo.name : (owner ? owner.name : "Tarafsiz Bölge");
+  var countryName = countryInfo ? countryInfo.name : (owner ? owner.name : "Neutral Region");
   var leader = countryInfo && countryInfo.leader ? countryInfo.leader : "";
   var flagCode = owner ? owner.flag.toLowerCase() : null;
   var historicalFlagUrl = owner && countryInfo && countryInfo.flagImg ? countryInfo.flagImg : null;
