@@ -262,7 +262,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       <div class="panel-title">&#9672; Selected Territory</div>
       <div id="selected-territory-info"></div>
       <div id="soldier-input-area">
-        <input type="number" id="soldier-count-input" min="1" placeholder="Asker sayisi..." />
+        <input type="number" id="soldier-count-input" min="1" placeholder="The number of soldiers..." />
         <button class="btn success" onclick="confirmAddSoldiers()"><span class="btn-icon">&#10003;</span> Gonder</button>
       </div>
     </div>
@@ -1037,14 +1037,14 @@ function onTerritoryClick(e) {
         notify("Bu topraktan saldirilabilecek dusман topragi yok!");
       } else {
         state.attackSourceTerritory = pathId;
-        notify("Kirmizi parlayan topraklardan birine tiklayin!");
+        notify("Click on one of the red adjacent lands!");
       }
       return;
     }
 
     // Clicking enemy territory: attack it
     if (!owner || owner.id === active.id) { notify("Saldirmak icin düşman topragini secin!"); return; }
-    if (areAllied(active.id, owner.id)) { notify("⚠ Bu ülke müttefikiniz! Saldırmak için önce ittifakı bozun."); return; }
+    if (areAllied(active.id, owner.id)) { notify("⚠ This country is your ally! Break the alliance to attack."); return; }
     if (active.wars.indexOf(owner.id) === -1) { notify("Bu ulkeyle savas ilan etmediniz!"); return; }
 
     // Check adjacency and soldier requirement
@@ -1080,8 +1080,8 @@ function showTerritoryInfo(pathId, owner) {
   info.innerHTML =
     "<div class=\"info-row\"><span class=\"info-label\">ID</span><span class=\"info-val\">" + pathId + "</span></div>" +
     "<div class=\"info-row\"><span class=\"info-label\">Sahip</span><span class=\"info-val\" style=\"color:" + ownerColor + "\">" + ownerName + "</span></div>" +
-    "<div class=\"info-row\"><span class=\"info-label\">Askerler</span><span class=\"info-val " + (soldiers>0?"green":"") + "\">" + (soldiers>0 ? soldiers+" asker" : "Yok") + "</span></div>" +
-    "<div class=\"info-row\"><span class=\"info-label\">Gelir</span><span class=\"info-val gold\">100c/tur</span></div>";
+    "<div class=\"info-row\"><span class=\"info-label\">Soldier</span><span class=\"info-val " + (soldiers>0?"green":"") + "\">" + (soldiers>0 ? soldiers+" asker" : "Yok") + "</span></div>" +
+    "<div class=\"info-row\"><span class=\"info-label\">Income</span><span class=\"info-val gold\">100c/tur</span></div>";
 }
 
 function onTerritoryHover(e) {
@@ -1173,7 +1173,7 @@ function startPlayerTurn() {
   updateMapHighlights();
   renderSidePanel();
   updateWarSection();
-  notify(player.flag + " " + player.name + (player.isAI ? " (AI) oynuyor..." : " sirasi!"));
+  notify(player.flag + " " + player.name + (player.isAI ? " (AI) is playing ..." : " sirasi!"));
 
   // Check for pending peace offers directed at this player
   var pendingOffers = state.peaceOffers.filter(function(o){ return o.to === player.id; });
@@ -1201,7 +1201,7 @@ function startPlayerTurn() {
             "<div style=\"text-align:center;padding:8px 0\">" +
               "<div style=\"font-size:22px;margin-bottom:8px\">🕊</div>" +
               "<div style=\"font-family:Cinzel,serif;font-size:13px;color:var(--gold);margin-bottom:10px\">" + offerer.flag + " " + offerer.name + "</div>" +
-              "<div style=\"font-size:13px;color:var(--text);line-height:1.7\">" + offerer.name + " size barış teklif ediyor.<br>Kabul eder misiniz?</div>" +
+              "<div style=\"font-size:13px;color:var(--text);line-height:1.7\">" + offerer.name + " has offered peace.<br>Will you accept it?</div>" +
             "</div>",
             [
               {label:"✓ Kabul Et", cls:"success", action:"acceptPeace("+offer.from+","+offer.to+")"},
@@ -1248,13 +1248,13 @@ function startPlayerTurn() {
             "<div style=\"text-align:center;padding:8px 0\">" +
               "<div style=\"font-size:28px;margin-bottom:8px\">🤝</div>" +
               "<div style=\"font-family:Cinzel,serif;font-size:13px;color:#ffd700;margin-bottom:10px\"><img src='https://raw.githubusercontent.com/chemist83/utaww2battlenavy8/refs/heads/main/military-helmet.png" + (capturedAlliOfferer.flagImg || '') + "' style='height:16px;vertical-align:middle;margin-right:5px'>" + capturedAlliOfferer.flag + " " + capturedAlliOfferer.name + "</div>" +              "<div style=\"font-size:13px;color:var(--text);line-height:1.8\">" +
-                capturedAlliOfferer.name + " size ittifak teklif ediyor.<br>" +
+                capturedAlliOfferer.name + " wants to form an alliance.<br>" +
                 "<span style=\"font-size:11px;color:#aaa\">Müttefikler birbirine saldıramaz ve birbirlerinin topraklarından asker geçirebilir.</span>" +
               "</div>" +
             "</div>",
             [
-              {label:"🤝 Kabul Et", cls:"success", action:"acceptAlliance("+capturedAlliOffer.from+","+capturedAlliOffer.to+")"},
-              {label:"✗ Reddet",   cls:"danger",  action:"rejectAlliance("+capturedAlliOffer.from+","+capturedAlliOffer.to+")"}
+              {label:"🤝 Accept", cls:"success", action:"acceptAlliance("+capturedAlliOffer.from+","+capturedAlliOffer.to+")"},
+              {label:"✗ Decline",   cls:"danger",  action:"rejectAlliance("+capturedAlliOffer.from+","+capturedAlliOffer.to+")"}
             ]
           );
         }, alliDelay);
