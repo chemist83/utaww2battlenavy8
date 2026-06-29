@@ -444,7 +444,7 @@ function saveProfile() {
   var newName = document.getElementById('prof-username').value.trim();
   var newAvatar = document.getElementById('prof-avatar').value.trim();
   var user = authCurrentUser();
-  if (!user || !newName) { notify('YOUR USERNAME CAN'T BE EMPTY!'); return; }
+  if (!user || !newName) { notify('YOUR USERNAME CANNOT BE EMPTY!'); return; }
   var accounts = authAccounts();
   var idx = accounts.findIndex(function(a){ return a.id === user.id; });
   if (idx === -1) return;
