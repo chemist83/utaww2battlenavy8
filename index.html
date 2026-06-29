@@ -741,11 +741,11 @@ function buildHumanCountBtns() {
   var info = document.getElementById("hcnt-info");
   if (info) {
     var aiCount = playerCount - humanCount;
-    info.textContent = aiCount > 0 ? ("— " + aiCount + " ülke AI tarafından oynanacak") : "— tüm ülkeler insan";
+    info.textContent = aiCount > 0 ? ("— " + aiCount + " will be controlled by AI") : "— tüm ülkeler insan";
   }
 }
 
-var aiNames = ["AI Rakip 1","AI Rakip 2","AI Rakip 3","AI Rakip 4","AI Rakip 5","AI Rakip 6","AI Rakip 7"];
+var aiNames = ["AI Rival 1","AI Rival 2","AI Rival 3","AI Rival 4","AI Rival 5","AI Rival 6","AI Rival 7"];
 
 function buildPlayerRows(n) {
   var c = document.getElementById("player-setup-rows");
@@ -789,9 +789,9 @@ function toggleAI(i) {
 
 var aiDifficulty = "medium";
 var DIFF_DESC = {
-  easy:   "Kolay: AI az asker alır, nadiren saldırır ve çoğu zaman pasif kalır.",
-  medium: "Orta: AI dengeli davranır, temel strateji uygular.",
-  hard:   "Zor: AI agresif, sınırlara asker dağıtır ve tüm fırsatları değerlendirir!"
+  easy:   "Easy: AI recruits fewer soldiers, attacks rarely and it stays stationary usually.",
+  medium: "Medium: AI behaves in a balanced way, applies basic strategies.",
+  hard:   "Hard: AI is aggressive, deploys soldiers to its border and doesn't miss out on any opportunities!"
 };
 function selectDifficulty(d) {
   aiDifficulty = d;
@@ -814,7 +814,7 @@ function startGame() {
   for (var i = 0; i < playerCount; i++) {
     var name = document.getElementById("pname-"+i).value.trim() || ("Oyuncu "+(i+1));
     var country = document.getElementById("pcountry-"+i).value;
-    if (used[country]) { errEl.textContent = country + " zaten secildi!"; return; }
+    if (used[country]) { errEl.textContent = country + " has already been selected!"; return; }
     used[country] = true;
     var cd = COUNTRIES[country];
     players.push({id:i, name:name, country:country, color:cd.color, flag:cd.flag,
@@ -831,7 +831,7 @@ function startGame() {
   renderFlagSettings();
   renderDiplomacyTable();
   startPlayerTurn();
-  addLog("Oyun basladi! Avrupanin kaderi oyunculara kaldi.");
+  addLog("The game began! The fate of Europe remains to players.");
 }
 
 function injectSVG() {
