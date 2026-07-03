@@ -377,7 +377,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
 <div id="notification"></div>
 
 <script>
-// ── AUTH (LocalStorage) ─────────────────────────────────────
+// ── AUTH (LocalStorage) ────────────────────────────────────
 var _authTab = 'login';
 function authAccounts() { try { return JSON.parse(localStorage.getItem('strateji_accounts') || '[]'); } catch(e) { return []; } }
 function authSaveAccounts(arr) { localStorage.setItem('strateji_accounts', JSON.stringify(arr)); }
@@ -1929,8 +1929,8 @@ function openCeasefireModal(toId) {
       "</div>" +
     "</div>",
     [
-      {label:"📨 Teklif Gönder", cls:"success", action:"submitCeasefireOffer("+toId+")"},
-      {label:"✗ Vazgeç", cls:"danger", action:"closeModal()"}
+      {label:"📨 Send the offer", cls:"success", action:"submitCeasefireOffer("+toId+")"},
+      {label:"✗ Give up", cls:"danger", action:"closeModal()"}
     ]
   );
 }
@@ -1950,7 +1950,7 @@ function submitCeasefireOffer(toId) {
   var offerId = Date.now() + Math.floor(Math.random()*1000);
   state.ceasefireOffers.push({id:offerId, from:player.id, to:toId, name:name, duration:dur});
   addLog("🕊 "+player.name+" → "+enemy.name+": \""+name+"\" ("+dur+" tur) ateşkes teklifi");
-  notify("📨 \""+name+"\" teklifi gönderildi! ("+dur+" tur)");
+  notify("📨 \""+name+"\" offer has been sent! ("+dur+" tur)");
   renderDiplomacyTable();
 }
 
@@ -1976,8 +1976,8 @@ function rejectCeasefire(offerId) {
   if (!offer) { renderDiplomacyTable(); return; }
   state.ceasefireOffers = state.ceasefireOffers.filter(function(o){ return o.id !== offerId; });
   var fromP = state.players.find(function(p){ return p.id === offer.from; });
-  if (fromP) addLog("❌ \""+offer.name+"\" ateşkes teklifi reddedildi.");
-  notify("Ateşkes teklifi reddedildi.");
+  if (fromP) addLog("❌ The ceasefire named \""+offer.name+"\" has been declined.");
+  notify("The ceasefire offer was refused.");
   renderDiplomacyTable();
 }
 // ──────────────────────────────────────────────────────────
@@ -1997,28 +1997,28 @@ function buildWarListHtml(player) {
     if (!atWar) {
       warBadge = "<span class=\"at-war-badge peace\">🕊 BARIŞ</span>";
     } else if (pendingFromMe) {
-      warBadge = "<span class=\"at-war-badge\" style=\"background:rgba(241,196,15,0.25);color:#f1c40f;border:1px solid rgba(241,196,15,0.5)\">⏳ TEKLİF</span>";
+      warBadge = "<span class=\"at-war-badge\" style=\"background:rgba(241,196,15,0.25);color:#f1c40f;border:1px solid rgba(241,196,15,0.5)\">⏳ OFFER</span>";
     } else if (pendingToMe) {
-      warBadge = "<span class=\"at-war-badge\" style=\"background:rgba(39,174,96,0.25);color:#2ecc71;border:1px solid rgba(39,174,96,0.5)\">📨 BEKLEYEN</span>";
+      warBadge = "<span class=\"at-war-badge\" style=\"background:rgba(39,174,96,0.25);color:#2ecc71;border:1px solid rgba(39,174,96,0.5)\">📨 PENDING</span>";
     } else {
-      warBadge = "<span class=\"at-war-badge war\">⚔ SAVAŞ</span>";
+      warBadge = "<span class=\"at-war-badge war\">⚔ WAR</span>";
     }
     var alliBadge = "";
     if (!atWar) {
       if (allied) {
-        alliBadge = "<span class=\"at-war-badge\" style=\"background:rgba(255,200,0,0.25);color:#ffd700;border:1px solid rgba(255,200,0,0.6);margin-left:4px\">🤝 MÜTTEFİK</span>";
+        alliBadge = "<span class=\"at-war-badge\" style=\"background:rgba(255,200,0,0.25);color:#ffd700;border:1px solid rgba(255,200,0,0.6);margin-left:4px\">🤝 ALLY</span>";
       } else if (alliOfferFromMe) {
-        alliBadge = "<span class=\"at-war-badge\" style=\"background:rgba(255,200,0,0.12);color:#f1c40f;border:1px solid rgba(241,196,15,0.4);margin-left:4px\">⏳ İTTİFAK TEKLİFİ</span>";
+        alliBadge = "<span class=\"at-war-badge\" style=\"background:rgba(255,200,0,0.12);color:#f1c40f;border:1px solid rgba(241,196,15,0.4);margin-left:4px\">⏳ ALLIANCE OFFER</span>";
       } else if (alliOfferToMe) {
-        alliBadge = "<span class=\"at-war-badge\" style=\"background:rgba(255,200,0,0.12);color:#f1c40f;border:1px solid rgba(241,196,15,0.4);margin-left:4px\">📨 İTTİFAK BEKLİYOR</span>";
+        alliBadge = "<span class=\"at-war-badge\" style=\"background:rgba(255,200,0,0.12);color:#f1c40f;border:1px solid rgba(241,196,15,0.4);margin-left:4px\">📨 ALLIANCE PENDING</span>";
       }
     }
     var alliBtn = "";
     if (!atWar) {
       if (allied) {
-        alliBtn = "<button style=\"font-size:9px;padding:2px 6px;margin-left:4px;border:1px solid rgba(255,100,100,0.5);background:transparent;color:#e74c3c;cursor:pointer;border-radius:2px;font-family:Cinzel,serif\" onclick=\"event.stopPropagation();breakAlliance(" + e.id + ")\">İTTİFAKI BOZ</button>";
+        alliBtn = "<button style=\"font-size:9px;padding:2px 6px;margin-left:4px;border:1px solid rgba(255,100,100,0.5);background:transparent;color:#e74c3c;cursor:pointer;border-radius:2px;font-family:Cinzel,serif\" onclick=\"event.stopPropagation();breakAlliance(" + e.id + ")\">BREAK THE ALLIANCE</button>";
       } else if (!alliOfferFromMe && !alliOfferToMe) {
-        alliBtn = "<button style=\"font-size:9px;padding:2px 6px;margin-left:4px;border:1px solid rgba(255,200,0,0.4);background:transparent;color:#ffd700;cursor:pointer;border-radius:2px;font-family:Cinzel,serif\" onclick=\"event.stopPropagation();offerAlliance(" + e.id + ")\">🤝 İTTİFAK TEKLİF</button>";
+        alliBtn = "<button style=\"font-size:9px;padding:2px 6px;margin-left:4px;border:1px solid rgba(255,200,0,0.4);background:transparent;color:#ffd700;cursor:pointer;border-radius:2px;font-family:Cinzel,serif\" onclick=\"event.stopPropagation();offerAlliance(" + e.id + ")\">🤝 ALLIANCE OFFER</button>";
       }
     }
     return "<div class=\"war-target-item\" onclick=\"toggleWar(" + e.id + ")\">" +
@@ -2055,7 +2055,7 @@ function breakAlliance(enemyId) {
     return !((a[0]===player.id && a[1]===enemyId)||(a[0]===enemyId && a[1]===player.id));
   });
   addLog("💔 " + player.flag + " " + player.name + ", " + enemy.flag + " " + enemy.name + " ile ittifakı bozdu!");
-  notify("💔 " + enemy.name + " ile ittifak sona erdi.");
+  notify("💔 The alliance with" + enemy.name + " has been broken.");
   var listEl = document.getElementById("war-list");
   if (listEl) listEl.innerHTML = buildWarListHtml(player);
   renderSidePanel();
@@ -2068,8 +2068,8 @@ function acceptAlliance(fromId, toId) {
   state.allianceOffers = state.allianceOffers.filter(function(o){ return !(o.from===fromId && o.to===toId); });
   if (fromP && toP) {
     state.alliances.push([fromId, toId]);
-    addLog("🤝 " + fromP.flag + " " + fromP.name + " ile " + toP.flag + " " + toP.name + " ittifak kurdu!");
-    notify("🤝 İttifak kuruldu! Artık birbirinize saldıramazsınız.");
+    addLog("🤝 " + fromP.flag + " " + fromP.name + " and " + toP.flag + " " + toP.name + " formed an alliance!");
+    notify("🤝 The alliance has been formed! You cannot attack each other as long as the alliance isn't broken.");
   }
   renderSidePanel();
 }
@@ -2088,7 +2088,7 @@ function openWarModal() {
   var player = state.players[state.currentTurn];
   var html = buildWarListHtml(player);
   showModal("DİPLOMASİ", "<div id=\"war-list\">" + html + "</div>", [
-    {label:"Tamam", cls:"success", action:"closeModal()"}
+    {label:"Close", cls:"success", action:"closeModal()"}
   ]);
 }
 
@@ -2102,7 +2102,7 @@ function toggleWar(enemyId) {
     // At war: propose peace instead of immediate peace
     var alreadyOffered = state.peaceOffers.some(function(o){ return o.from === player.id && o.to === enemyId; });
     if (alreadyOffered) {
-      notify("Zaten " + enemy.name + "'e barış teklifi gönderdiniz. Sırasını bekleyin.");
+      notify("You have already sent a peace offer " + enemy.name + ". Skip the turn to see the result.");
     } else {
       state.peaceOffers.push({from: player.id, to: enemyId});
       addLog(player.flag+" "+player.name+", "+enemy.flag+" "+enemy.name+"e barış teklifi gönderdi.");
@@ -2114,7 +2114,7 @@ function toggleWar(enemyId) {
       state.alliances = state.alliances.filter(function(a){
         return !((a[0]===player.id && a[1]===enemyId)||(a[0]===enemyId && a[1]===player.id));
       });
-      addLog("💔 " + player.flag + " " + player.name + ", " + enemy.flag + " " + enemy.name + " ile ittifakı bozdu (savaş ilanı)!");
+      addLog("💔 " + player.flag + " " + player.name + " has broken the alliance with " + enemy.flag + " " + enemy.name + " (war declaration)!");
     }
     // Remove any pending alliance offers between them
     state.allianceOffers = state.allianceOffers.filter(function(o){
@@ -3827,8 +3827,8 @@ function musicBuildSlots() {
       div.id = "music-slot-" + idx;
       div.innerHTML =
         "<span class=\"music-slot-num\">" + (idx+1) + "</span>" +
-        "<span class=\"music-slot-name\" id=\"mname-" + idx + "\">Parca ekle...</span>" +
-        "<button class=\"music-slot-btn\" onclick=\"musicPickFile(" + idx + ")\">+ Ekle</button>" +
+        "<span class=\"music-slot-name\" id=\"mname-" + idx + "\">Add an audio...</span>" +
+        "<button class=\"music-slot-btn\" onclick=\"musicPickFile(" + idx + ")\">+ Add</button>" +
         "<input type=\"file\" class=\"music-slot-input\" id=\"mfile-" + idx + "\" accept=\"audio/*\" />";
       container.appendChild(div);
 
