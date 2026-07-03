@@ -1102,7 +1102,7 @@ function onTerritoryClick(e) {
     if (!isOwnTerritory && !isAllyTerritory) { notify("You are able to move soldier to only your ally's lands or your own lands "); return; }
     if (!state.moveSource) {
       if (!isOwnTerritory) { notify("Kaynак olarak yalnizca kendi topraklarinizi seçebilirsiniz!"); return; }
-      if (!active.soldiers[pathId] || active.soldiers[pathId] < 1) { notify("Bu toprakta asker yok!"); return; }
+      if (!active.soldiers[pathId] || active.soldiers[pathId] < 1) { notify("There is no soldier in this territory!"); return; }
       clearMoveHighlights();
       var adj = buildAdjacency();
       var nbrs = adj[pathId] || [];
