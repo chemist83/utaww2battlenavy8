@@ -1556,7 +1556,7 @@ function toggleSoldierMode() {
     state.mode = "soldier"; btn.classList.add("active-mode");
     document.getElementById("btn-attack").classList.remove("active-mode");
     setModeHighlights("soldier");
-    notify("Asker eklemek icin kendi topraklariniza tiklayin");
+    notify("Click on one of your own territories to add soldier");
   }
 }
 
@@ -1577,8 +1577,8 @@ function showMoveCountModal(maxCount, destId) {
       "<div style='font-size:10px;color:#666;margin-top:8px'>1 ile " + maxCount + " arasında girin</div>" +
     "</div>",
     [
-      {label:"✔ Taşı", cls:"success", action:"confirmMoveCount()"},
-      {label:"✗ İptal", cls:"danger", action:"cancelMoveCount()"}
+      {label:"✔ Move", cls:"success", action:"confirmMoveCount()"},
+      {label:"✗ Cancel", cls:"danger", action:"cancelMoveCount()"}
     ]
   );
   setTimeout(function(){
