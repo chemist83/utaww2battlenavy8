@@ -316,7 +316,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       <div id="selected-territory-info"></div>
       <div id="soldier-input-area">
         <input type="number" id="soldier-count-input" min="1" placeholder="The number of soldiers..." />
-        <button class="btn success" onclick="confirmAddSoldiers()"><span class="btn-icon">&#10003;</span> Gonder</button>
+        <button class="btn success" onclick="confirmAddSoldiers()"><span class="btn-icon">&#10003;</span> Send</button>
       </div>
       <button class="btn danger" id="btn-disband-soldier" onclick="disbandSoldiersPrompt()" style="display:none"><span class="btn-icon">&#10006;</span> Disband (asker dagit, +20c/asker)</button>
     </div>
@@ -2003,19 +2003,19 @@ function renderGovPanel() {
       hWarn.style.background = "rgba(231,76,60,0.08)";
       hWarn.style.borderColor = "rgba(231,76,60,0.3)";
       hWarn.style.color = "#e74c3c";
-      hWarn.innerHTML = "⚠ Vergin normal oranın <b>" + overNormal + "c üstünde</b><br>" +
-        "→ Sonraki tur: <b style=\"font-size:11px\">-" + (overNormal * 5) + "% happiness</b>";
+      hWarn.innerHTML = "⚠ Income(including taxes) <b>" + overNormal + "c üstünde</b><br>" +
+        "→ Next Turn: <b style=\"font-size:11px\">-" + (overNormal * 5) + "% happiness</b>";
     } else if (overNormal < 0) {
       hWarn.style.background = "rgba(46,204,113,0.08)";
       hWarn.style.borderColor = "rgba(46,204,113,0.3)";
       hWarn.style.color = "#2ecc71";
-      hWarn.innerHTML = "✓ Vergin normal oranın <b>" + Math.abs(overNormal) + "c altında</b><br>" +
-        "→ Sonraki tur: <b style=\"font-size:11px\">+" + (Math.abs(overNormal) * 5) + "% happiness</b>";
+      hWarn.innerHTML = "✓ Income(including taxes) <b>" + Math.abs(overNormal) + "c altında</b><br>" +
+        "→ Next Turn: <b style=\"font-size:11px\">+" + (Math.abs(overNormal) * 5) + "% happiness</b>";
     } else {
       hWarn.style.background = "rgba(255,255,255,0.03)";
       hWarn.style.borderColor = "rgba(255,255,255,0.07)";
       hWarn.style.color = "#888";
-      hWarn.innerHTML = "= Normal oranda — sonraki tur happiness değişmez.";
+      hWarn.innerHTML = "= Income(including taxes).";
     }
   }
 }
