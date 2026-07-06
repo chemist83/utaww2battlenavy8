@@ -316,7 +316,7 @@ body{font-family:'Crimson Pro',serif;background:#0a0a0f;color:var(--text);height
       <div id="selected-territory-info"></div>
       <div id="soldier-input-area">
         <input type="number" id="soldier-count-input" min="1" placeholder="The number of soldiers..." />
-        <button class="btn success" onclick="confirmAddSoldiers()"><span class="btn-icon">&#10003;</span> Send</button>
+        <button class="btn success" onclick="confirmAddSoldiers()"><span class="btn-icon">&#10003;</span> Gonder</button>
       </div>
       <button class="btn danger" id="btn-disband-soldier" onclick="disbandSoldiersPrompt()" style="display:none"><span class="btn-icon">&#10006;</span> Disband (asker dagit, +20c/asker)</button>
     </div>
@@ -2164,19 +2164,19 @@ function renderGovPanel() {
       hWarn.style.background = "rgba(231,76,60,0.08)";
       hWarn.style.borderColor = "rgba(231,76,60,0.3)";
       hWarn.style.color = "#e74c3c";
-      hWarn.innerHTML = "⚠ Income(including taxes)<b>" + overNormal + "c üstünde</b><br>" +
+      hWarn.innerHTML = "⚠ Vergin normal oranın <b>" + overNormal + "c üstünde</b><br>" +
         "→ Sonraki tur: <b style=\"font-size:11px\">-" + (overNormal * 5) + "% happiness</b>";
     } else if (overNormal < 0) {
       hWarn.style.background = "rgba(46,204,113,0.08)";
       hWarn.style.borderColor = "rgba(46,204,113,0.3)";
       hWarn.style.color = "#2ecc71";
-      hWarn.innerHTML = "✓ Income(including taxes)<b>" + Math.abs(overNormal) + "c altında</b><br>" +
+      hWarn.innerHTML = "✓ Vergin normal oranın <b>" + Math.abs(overNormal) + "c altında</b><br>" +
         "→ Sonraki tur: <b style=\"font-size:11px\">+" + (Math.abs(overNormal) * 5) + "% happiness</b>";
     } else {
       hWarn.style.background = "rgba(255,255,255,0.03)";
       hWarn.style.borderColor = "rgba(255,255,255,0.07)";
       hWarn.style.color = "#888";
-      hWarn.innerHTML = "= Income(including taxes)";
+      hWarn.innerHTML = "= Normal oranda — sonraki tur happiness değişmez.";
     }
   }
 }
@@ -2811,9 +2811,9 @@ window.addEventListener("resize", updateSoldierMarkers);
 
 // ── AI OYUNCU ──────────────────────────────────────────────
 var DIFF_CONFIG = {
-  easy:   { maxBuy: 4,  warChance: 0.38, edgeNeeded: 0, maxAtk: 2, skipChance: 0.52, multiWar: 0 },
-  medium: { maxBuy: 10, warChance: 0.82, edgeNeeded: 0, maxAtk: 2, skipChance: 0.06, multiWar: 0 },
-  hard:   { maxBuy: 30, warChance: 1.0,  edgeNeeded: 0, maxAtk: 3, skipChance: 0,    multiWar: 1 }
+  easy:   { maxBuy: 6,  warChance: 0.80, edgeNeeded: 0, maxAtk: 3, multiWar: 0 },
+  medium: { maxBuy: 10, warChance: 0.95, edgeNeeded: 0, maxAtk: 3, multiWar: 1 },
+  hard:   { maxBuy: 30, warChance: 1.0,  edgeNeeded: 0, maxAtk: 3, multiWar: 2 }
 };
 
 function runAITurn() {
@@ -2864,7 +2864,23 @@ function runAITurn() {
       }
 
       frontierScores.sort(function(a,b){ return b.score - a.score; });
-      if (frontierScores.length === 0) frontierScores = [{tid: player.territories[0], score: 1, isHumanFront: false}];
+
+      // Savaş yoksa (erken tur veya barışta): topraklara rastgele asker dağıt
+      if (frontierScores.length === 0) {
+        // Sınır topraklarını bul (komşusu başka birine ait olan), yoksa tümüne dağıt
+        var borderTids = player.territories.filter(function(tid) {
+          return (adj[tid] || []).some(function(n) {
+            var o = getTerritoryOwner(n); return o && o.id !== player.id;
+          });
+        });
+        var pool = borderTids.length > 0 ? borderTids : player.territories;
+        // Rastgele karıştır, en fazla 3 toprak seç
+        var shuffled = pool.slice().sort(function(){ return Math.random() - 0.5; });
+        var pickCount = Math.min(3, shuffled.length);
+        for (var bi = 0; bi < pickCount; bi++) {
+          frontierScores.push({ tid: shuffled[bi], score: 1, isHumanFront: false });
+        }
+      }
 
       // Slot sayısı: easy→1, medium→2, hard→4 (insan saldırısı varsa +1 bonus)
       var slotCount = aiDifficulty === "hard" ? 4 : aiDifficulty === "medium" ? 2 : 1;
@@ -2882,14 +2898,15 @@ function runAITurn() {
           renderSoldierMarker(s.tid, player);
         }
       });
-      var logSuffix = humanEnemyIds.length > 0 ? " (insan cephesi öncelikli)" : "";
-      addLog(player.flag+" "+player.name+" (AI/"+diffLabel+"): "+canBuy+" asker sınırlara dağıttı"+logSuffix);
+      var logSuffix = humanEnemyIds.length > 0 ? " (insan cephesi öncelikli)" : player.wars.length === 0 ? " (barış dönemi hazırlığı)" : "";
+      addLog(player.flag+" "+player.name+" (AI/"+diffLabel+"): "+canBuy+" asker dağıttı"+logSuffix);
       renderSidePanel();
     }
   }
 
-  // 2. SAVAŞ İLAN ET
-  if (Math.random() < cfg.warChance) {
+  // 2. SAVAŞ İLAN ET — ilk 3 tur beklenir (erken saldırı engeli)
+  var minWarTurn = 4; // ilk savaş ilanı en erken bu turda olabilir
+  if (state.turnNumber >= minWarTurn && Math.random() < cfg.warChance) {
     var candidates = [];
     player.territories.forEach(function(tid) {
       (adj[tid] || []).forEach(function(n) {
@@ -2915,8 +2932,8 @@ function runAITurn() {
     }
   }
 
-  // 3. SALDIR — komsu topraktaki asker sayisini geciyorsa savasta olmasa dahi
-  // firsatci sekilde savas ilan edip saldirir (uşenmeden ele gecirir).
+  // 3. SALDIR — savaştaki düşmanlara her turda mutlaka saldır
+  // Eşit kuvvette bile savaşır; savaştayken dezavantajlı olsa bile meydan okur.
   for (var round = 0; round < cfg.maxAtk && state.attacksThisTurn < 3; round++) {
     var bestSrc = null, bestTgt2 = null, bestDef = null, bestVal = -Infinity;
     player.territories.forEach(function(tid) {
@@ -2928,22 +2945,28 @@ function runAITurn() {
         if (areAllied(player.id, o.id)) return;
         if (inCeasefire(player.id, o.id)) return;
         var defS = o.soldiers[n] || 0;
-        // edgeNeeded: atkS > defS + edgeNeeded  →  kazanmak icin gerekli fark
-        if (atkS > defS + cfg.edgeNeeded) {
-          var val = (atkS - defS);
-          if (aiDifficulty === "hard") {
-            // Hard: toprak zengini hedeflere öncelik ver
-            val += o.territories.length * 2;
-            // Kazandıktan sonra zincir fırsatları da değerlendir
-            var chainBonus = (adj[n] || []).filter(function(nn){
-              var oo = getTerritoryOwner(nn);
-              return oo && oo.id !== player.id && !oo.eliminated && !areAllied(player.id, oo.id) && (oo.soldiers[nn]||0) < atkS;
-            }).length;
-            val += chainBonus * 3;
-          }
-          if (val > bestVal) {
-            bestVal = val; bestSrc = tid; bestTgt2 = n; bestDef = o;
-          }
+        var atWar = player.wars.indexOf(o.id) !== -1;
+        // Saldırı kararı:
+        // - Fazla askerle → her zaman saldır
+        // - Eşit askerle ve savaştaysa → %75 ihtimalle saldır
+        // - Az askerle (en az 1 asker) ve savaştaysa → %40 ihtimalle saldır (ölümüne savaş)
+        var canAttack = atkS > defS
+          || (atkS === defS && atWar && Math.random() < 0.75)
+          || (atkS < defS && atkS >= 1 && atWar && Math.random() < 0.40);
+        if (!canAttack) return;
+        var val = (atkS - defS);
+        if (aiDifficulty === "hard") {
+          val += o.territories.length * 2;
+          var chainBonus = (adj[n] || []).filter(function(nn){
+            var oo = getTerritoryOwner(nn);
+            return oo && oo.id !== player.id && !oo.eliminated && !areAllied(player.id, oo.id) && (oo.soldiers[nn]||0) < atkS;
+          }).length;
+          val += chainBonus * 3;
+        }
+        // Savaştaki düşmana öncelik ver
+        if (atWar) val += 5;
+        if (val > bestVal) {
+          bestVal = val; bestSrc = tid; bestTgt2 = n; bestDef = o;
         }
       });
     });
@@ -4574,7 +4597,7 @@ function disbandShipPrompt(ship, player) {
   state.mode = null;
   selectedShipId = null;
   renderSidePanel();
-  notify(n + " gemi dağıtıldı! +" + refund + "c kazandın. Bakiye: " + player.coin + "c");
+  notify(n + " gemi dağıtıldı! +" + refund + "c kazandın. Balance: " + player.coin + "c");
 }
 
 // Patch disableActions to also reset ship modes
