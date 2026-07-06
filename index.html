@@ -786,6 +786,7 @@ var state = {
 var playerCount = 3;
 var humanCount = 3;
 var svgDoc = null;
+var _treatyDraft = null; // active peace treaty draft
 var mapScale = 1, mapOffsetX = 0, mapOffsetY = 0;
 var isPanning = false, panLastX = 0, panLastY = 0;
 
@@ -1414,6 +1415,12 @@ function startPlayerTurn() {
     player.rebelTriggered = true;
     spawnRebels(player);
   }
+  // Rebel attacks: each rebel faction at war with this player attacks
+  state.players.forEach(function(r) {
+    if (r.isRebel && !r.eliminated && r.wars.indexOf(player.id) !== -1) {
+      runRebelAttacks(r, player);
+    }
+  });
   updateMapHighlights();
   renderSidePanel();
   updateWarSection();
@@ -1429,28 +1436,42 @@ function startPlayerTurn() {
     if (offerer) {
       if (player.isAI) {
         setTimeout(function(){
-          if (Math.random() < 0.6) {
-            state.peaceOffers = state.peaceOffers.filter(function(o){ return !(o.from===offer.from && o.to===offer.to); });
-            var wi1 = offerer.wars.indexOf(player.id); if (wi1!==-1) offerer.wars.splice(wi1,1);
-            var wi2 = player.wars.indexOf(offerer.id); if (wi2!==-1) player.wars.splice(wi2,1);
-            addLog("☮ AI: "+player.flag+" "+player.name+", "+offerer.flag+" "+offerer.name+"'in barış teklifini KABUL etti.");
+          // Smart evaluation: AI receives offer.theyGet, gives away offer.youGet
+          var aiReceives = (offer.theyGet && offer.theyGet.length) || 0;
+          var aiGives    = (offer.youGet  && offer.youGet.length)  || 0;
+          var chance = (aiGives === 0 && aiReceives === 0) ? 0.6
+                     : aiReceives >= aiGives               ? 0.85
+                     : aiReceives >= aiGives - 1           ? 0.50
+                     :                                       0.20;
+          if (Math.random() < chance) {
+            acceptPeace(offer.from, offer.to);
+            addLog("☮ AI: "+player.flag+" "+player.name+", "+offerer.flag+" "+offerer.name+"'in antlaşmasını KABUL etti.");
           } else {
             state.peaceOffers = state.peaceOffers.filter(function(o){ return !(o.from===offer.from && o.to===offer.to); });
-            addLog("⚔ AI: "+player.flag+" "+player.name+", "+offerer.flag+" "+offerer.name+"'in barış teklifini REDDETTİ.");
+            addLog("⚔ AI: "+player.flag+" "+player.name+", "+offerer.flag+" "+offerer.name+"'in antlaşmasını REDDETTİ.");
           }
         }, 200);
       } else {
         setTimeout(function(){
+          var youGetList  = (offer.youGet  && offer.youGet.length)  ? offer.youGet.join(", ")  : "—";
+          var theyGetList = (offer.theyGet && offer.theyGet.length) ? offer.theyGet.join(", ") : "—";
           showModal(
-            "☮ PEACE OFFER",
-            "<div style=\"text-align:center;padding:8px 0\">" +
-              "<div style=\"font-size:22px;margin-bottom:8px\">🕊</div>" +
+            "☮ BARIŞ ANTLAŞMASI",
+            "<div style=\"text-align:center;padding:6px 0\">" +
+              "<div style=\"font-size:22px;margin-bottom:6px\">🕊</div>" +
               "<div style=\"font-family:Cinzel,serif;font-size:13px;color:var(--gold);margin-bottom:10px\">" + offerer.flag + " " + offerer.name + "</div>" +
-              "<div style=\"font-size:13px;color:var(--text);line-height:1.7\">" + offerer.name + " has offered peace.<br>Will you accept it?</div>" +
+            "</div>" +
+            "<div style=\"background:rgba(46,204,113,0.07);border:1px solid rgba(46,204,113,0.25);border-radius:4px;padding:7px 10px;margin-bottom:7px\">" +
+              "<div style=\"font-size:10px;color:#2ecc71;font-family:Cinzel,serif;margin-bottom:3px\">Sana verilecek topraklar</div>" +
+              "<div style=\"font-size:11px;color:#eee\">" + youGetList + "</div>" +
+            "</div>" +
+            "<div style=\"background:rgba(231,76,60,0.07);border:1px solid rgba(231,76,60,0.25);border-radius:4px;padding:7px 10px;margin-bottom:10px\">" +
+              "<div style=\"font-size:10px;color:#e74c3c;font-family:Cinzel,serif;margin-bottom:3px\">Onlara verilecek topraklarınız</div>" +
+              "<div style=\"font-size:11px;color:#eee\">" + theyGetList + "</div>" +
             "</div>",
             [
               {label:"✓ Kabul Et", cls:"success", action:"acceptPeace("+offer.from+","+offer.to+")"},
-              {label:"✗ Reddet", cls:"danger",  action:"rejectPeace("+offer.from+","+offer.to+")"}
+              {label:"✗ Reddet",   cls:"danger",  action:"rejectPeace("+offer.from+","+offer.to+")"}
             ]
           );
         }, 500);
@@ -1652,6 +1673,146 @@ function spawnRebels(player) {
       [{ label: "Tamam", cls: "danger", action: "closeModal()" }]
     );
   }, 300);
+}
+
+// ── REBEL ATTACKS ─────────────────────────────────────────────
+function runRebelAttacks(rebel, target) {
+  if (!rebel || rebel.eliminated || rebel.territories.length === 0) return;
+  if (!target || target.eliminated) return;
+  var adj = buildAdjacency();
+  var attacksDone = 0;
+  var MAX_REBEL_ATTACKS = 2;
+  // Iterate over a snapshot so splice during loop is safe
+  rebel.territories.slice().forEach(function(rTid) {
+    if (attacksDone >= MAX_REBEL_ATTACKS) return;
+    var atkSol = rebel.soldiers[rTid] || 0;
+    if (atkSol < 1) return;
+    // Find adjacent target territories
+    var neighbors = adj[rTid] || [];
+    var adjTargets = neighbors.filter(function(n) {
+      return target.territories.indexOf(n) !== -1;
+    });
+    if (adjTargets.length === 0) return;
+    // Pick weakest target
+    adjTargets.sort(function(a, b) { return (target.soldiers[a]||0) - (target.soldiers[b]||0); });
+    var tTid = adjTargets[0];
+    var defSol = target.soldiers[tTid] || 0;
+    if (atkSol > defSol) {
+      // Rebel wins
+      var surviving = atkSol - defSol;
+      var idx = target.territories.indexOf(tTid);
+      if (idx > -1) target.territories.splice(idx, 1);
+      rebel.territories.push(tTid);
+      delete target.soldiers[tTid];
+      delete rebel.soldiers[rTid];
+      rebel.soldiers[tTid] = surviving;
+      var pathEl = svgDoc && svgDoc.getElementById(tTid);
+      if (pathEl) pathEl.setAttribute("fill", rebel.color);
+      addLog("☠ Rebel " + rTid + " → " + tTid + " baskın yaptı! (" + atkSol + " vs " + defSol + ") Hayatta kalan: " + surviving);
+    } else {
+      // Rebel repelled
+      var defRem = defSol - atkSol;
+      delete rebel.soldiers[rTid];
+      if (defRem > 0) target.soldiers[tTid] = defRem;
+      else delete target.soldiers[tTid];
+      addLog("☠ Rebel saldırısı püskürtüldü: " + tTid + " (" + atkSol + " vs " + defSol + ")");
+    }
+    attacksDone++;
+  });
+  if (attacksDone > 0) {
+    updateSoldierMarkers();
+    updateMapHighlights();
+    if (rebel.territories.length === 0) {
+      rebel.eliminated = true;
+      addLog("☠ " + target.flag + " " + target.name + " tüm rebel kuvvetlerini bastırdı!");
+    }
+  }
+}
+
+// ── PEACE TREATY MODAL ────────────────────────────────────────
+function buildTreatyModalBody(enemyId) {
+  var player = state.players[state.currentTurn];
+  var enemy = state.players.find(function(p){ return p.id === enemyId; });
+  if (!enemy || !_treatyDraft) return "";
+  function terrBtn(tid, side, selColor, unselColor) {
+    var sel = _treatyDraft[side].indexOf(tid) !== -1;
+    return "<button onclick=\"toggleTreatyTerritory('" + side + "','" + tid + "')\" " +
+      "style=\"font-size:9px;padding:2px 6px;margin:2px;cursor:pointer;border-radius:3px;" +
+      "border:1px solid " + (sel ? selColor : "rgba(255,255,255,0.15)") + ";" +
+      "background:" + (sel ? "rgba(" + (side==="youGet"?"46,204,113":"231,76,60") + ",0.2)" : "rgba(255,255,255,0.04)") + ";" +
+      "color:" + (sel ? selColor : "#aaa") + "\">" + tid + "</button>";
+  }
+  var eHtml = enemy.territories.length
+    ? enemy.territories.map(function(t){ return terrBtn(t,"youGet","#2ecc71"); }).join("")
+    : "<span style='font-size:9px;color:#555'>Toprak yok</span>";
+  var pHtml = player.territories.length
+    ? player.territories.map(function(t){ return terrBtn(t,"theyGet","#e74c3c"); }).join("")
+    : "<span style='font-size:9px;color:#555'>Toprak yok</span>";
+  return "<div style='font-size:10px;color:#888;margin-bottom:8px;text-align:center;line-height:1.5'>" +
+      "Antlaşma şartlarını belirleyin.<br>Seçilen topraklar teklif kabul edilince el değiştirir." +
+    "</div>" +
+    "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px'>" +
+      "<div style='background:rgba(46,204,113,0.06);border:1px solid rgba(46,204,113,0.25);border-radius:4px;padding:6px'>" +
+        "<div style='font-size:10px;color:#2ecc71;font-family:Cinzel,serif;margin-bottom:5px'>" + enemy.flag + " " + enemy.name + " verir →</div>" +
+        "<div style='max-height:100px;overflow-y:auto;line-height:1.8'>" + eHtml + "</div>" +
+      "</div>" +
+      "<div style='background:rgba(231,76,60,0.06);border:1px solid rgba(231,76,60,0.25);border-radius:4px;padding:6px'>" +
+        "<div style='font-size:10px;color:#e74c3c;font-family:Cinzel,serif;margin-bottom:5px'>← Sen verirsin (" + player.flag + ")</div>" +
+        "<div style='max-height:100px;overflow-y:auto;line-height:1.8'>" + pHtml + "</div>" +
+      "</div>" +
+    "</div>" +
+    "<div style='text-align:center;font-size:10px;padding:4px 8px;background:rgba(255,255,255,0.04);border-radius:3px'>" +
+      "Seçilen: <b style='color:#2ecc71'>+" + _treatyDraft.youGet.length + " alırsın</b> &nbsp;|&nbsp; " +
+      "<b style='color:#e74c3c'>-" + _treatyDraft.theyGet.length + " verirsin</b>" +
+    "</div>";
+}
+
+function openPeaceTreatyModal(enemyId) {
+  var player = state.players[state.currentTurn];
+  var enemy = state.players.find(function(p){ return p.id === enemyId; });
+  if (!enemy) return;
+  _treatyDraft = { enemyId: enemyId, youGet: [], theyGet: [] };
+  showModal(
+    "☮ BARIŞ ANTLAŞMASI — " + enemy.flag + " " + enemy.name,
+    buildTreatyModalBody(enemyId),
+    [
+      { label: "📨 Teklif Gönder", cls: "success", action: "sendTreatyOffer()" },
+      { label: "✗ İptal", cls: "danger", action: "closeModal()" }
+    ]
+  );
+}
+
+function toggleTreatyTerritory(side, tid) {
+  if (!_treatyDraft) return;
+  var arr = _treatyDraft[side];
+  var idx = arr.indexOf(tid);
+  if (idx !== -1) arr.splice(idx, 1); else arr.push(tid);
+  var body = document.getElementById("modal-body");
+  if (body) body.innerHTML = buildTreatyModalBody(_treatyDraft.enemyId);
+}
+
+function sendTreatyOffer() {
+  if (!_treatyDraft) return;
+  var player = state.players[state.currentTurn];
+  var enemy = state.players.find(function(p){ return p.id === _treatyDraft.enemyId; });
+  if (!enemy) return;
+  var alreadyOffered = state.peaceOffers.some(function(o){ return o.from===player.id && o.to===_treatyDraft.enemyId; });
+  if (alreadyOffered) { notify("Zaten bir barış teklifi gönderdiniz!"); closeModal(); return; }
+  state.peaceOffers.push({
+    from: player.id,
+    to: _treatyDraft.enemyId,
+    youGet: _treatyDraft.youGet.slice(),   // sender gets these from receiver
+    theyGet: _treatyDraft.theyGet.slice()  // sender gives these to receiver
+  });
+  addLog(player.flag+" "+player.name+", "+enemy.flag+" "+enemy.name+"e antlaşma teklifi gönderdi (+" + _treatyDraft.youGet.length + " alır / -" + _treatyDraft.theyGet.length + " verir)");
+  notify("☮ " + enemy.name + "'e barış antlaşması teklifi gönderildi!");
+  _treatyDraft = null;
+  closeModal();
+  var listEl = document.getElementById("war-list");
+  if (listEl) listEl.innerHTML = buildWarListHtml(player);
+  var attackBtn = document.getElementById("btn-attack");
+  if (attackBtn) attackBtn.style.display = player.wars.length > 0 ? "flex" : "none";
+  updateWarSection();
 }
 
 function endTurn() {
@@ -2004,18 +2165,18 @@ function renderGovPanel() {
       hWarn.style.borderColor = "rgba(231,76,60,0.3)";
       hWarn.style.color = "#e74c3c";
       hWarn.innerHTML = "⚠ Income(including taxes)<b>" + overNormal + "c üstünde</b><br>" +
-        "→ Next Turn: <b style=\"font-size:11px\">-" + (overNormal * 5) + "% happiness</b>";
+        "→ Sonraki tur: <b style=\"font-size:11px\">-" + (overNormal * 5) + "% happiness</b>";
     } else if (overNormal < 0) {
       hWarn.style.background = "rgba(46,204,113,0.08)";
       hWarn.style.borderColor = "rgba(46,204,113,0.3)";
       hWarn.style.color = "#2ecc71";
-      hWarn.innerHTML = "✓ Income(including taxes) <b>" + Math.abs(overNormal) + "c altında</b><br>" +
-        "→ Next Turn: <b style=\"font-size:11px\">+" + (Math.abs(overNormal) * 5) + "% happiness</b>";
+      hWarn.innerHTML = "✓ Income(including taxes)<b>" + Math.abs(overNormal) + "c altında</b><br>" +
+        "→ Sonraki tur: <b style=\"font-size:11px\">+" + (Math.abs(overNormal) * 5) + "% happiness</b>";
     } else {
       hWarn.style.background = "rgba(255,255,255,0.03)";
       hWarn.style.borderColor = "rgba(255,255,255,0.07)";
       hWarn.style.color = "#888";
-      hWarn.innerHTML = "= Income(including taxes).";
+      hWarn.innerHTML = "= Income(including taxes)";
     }
   }
 }
@@ -2373,14 +2534,13 @@ function toggleWar(enemyId) {
   if (enemy.isRebel) { notify("☠ Rebellerle asla barış yapamazsınız!"); return; }
   var warIdx = player.wars.indexOf(enemyId);
   if (warIdx !== -1) {
-    // At war: propose peace instead of immediate peace
+    // At war: open treaty negotiation modal
     var alreadyOffered = state.peaceOffers.some(function(o){ return o.from === player.id && o.to === enemyId; });
     if (alreadyOffered) {
-      notify("You have already sent a peace offer " + enemy.name + ". Skip the turn to see the result.");
+      notify("Zaten bir barış teklifi gönderdiniz. Sırası geldiğinde sonuç belli olacak.");
     } else {
-      state.peaceOffers.push({from: player.id, to: enemyId});
-      addLog(player.flag+" "+player.name+", "+enemy.flag+" "+enemy.name+"e barış teklifi gönderdi.");
-      notify("☮ " + enemy.name + "'e barış teklifi gönderildi! Sırası geldiğinde onaylayacak.");
+      closeModal();
+      setTimeout(function(){ openPeaceTreatyModal(enemyId); }, 50);
     }
   } else {
     // Not at war: declare war — break any alliance first
@@ -2431,12 +2591,40 @@ function acceptPeace(fromId, toId) {
     if (state.players[i].id===fromId) fromP=state.players[i];
     if (state.players[i].id===toId) toP=state.players[i];
   }
+  var offer = state.peaceOffers.find(function(o){ return o.from===fromId && o.to===toId; });
   state.peaceOffers = state.peaceOffers.filter(function(o){ return !(o.from===fromId && o.to===toId); });
   if (fromP && toP) {
     var wi1 = fromP.wars.indexOf(toId); if (wi1!==-1) fromP.wars.splice(wi1,1);
     var wi2 = toP.wars.indexOf(fromId); if (wi2!==-1) toP.wars.splice(wi2,1);
-    addLog("☮ "+fromP.flag+" "+fromP.name+" ile "+toP.flag+" "+toP.name+" barış yaptı!");
+    // Execute territory transfers
+    if (offer && offer.youGet) {
+      offer.youGet.forEach(function(tid) { // fromP gets these FROM toP
+        var idx = toP.territories.indexOf(tid);
+        if (idx === -1) return;
+        toP.territories.splice(idx, 1);
+        fromP.territories.push(tid);
+        delete toP.soldiers[tid];
+        var el = svgDoc && svgDoc.getElementById(tid);
+        if (el) el.setAttribute("fill", fromP.color);
+      });
+    }
+    if (offer && offer.theyGet) {
+      offer.theyGet.forEach(function(tid) { // toP gets these FROM fromP
+        var idx = fromP.territories.indexOf(tid);
+        if (idx === -1) return;
+        fromP.territories.splice(idx, 1);
+        toP.territories.push(tid);
+        delete fromP.soldiers[tid];
+        var el = svgDoc && svgDoc.getElementById(tid);
+        if (el) el.setAttribute("fill", toP.color);
+      });
+    }
+    var gotLen = (offer && offer.youGet) ? offer.youGet.length : 0;
+    var gaveLen = (offer && offer.theyGet) ? offer.theyGet.length : 0;
+    var detail = (gotLen+gaveLen > 0) ? " ("+fromP.name+" +" + gotLen + " toprak aldı, " + gaveLen + " verdi)" : "";
+    addLog("☮ "+fromP.flag+" "+fromP.name+" ile "+toP.flag+" "+toP.name+" barış antlaşması imzaladı!"+detail);
     notify("☮ " + fromP.name + " ile barış sağlandı!");
+    if (gotLen+gaveLen > 0) { updateSoldierMarkers(); updateMapHighlights(); }
   }
   var attackBtn = document.getElementById("btn-attack");
   if (attackBtn) attackBtn.style.display = state.players[state.currentTurn].wars.length > 0 ? "flex" : "none";
